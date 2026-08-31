@@ -1,0 +1,25 @@
+{
+  "name": "league-of-legends-companion-backend",
+  "version": "1.0.0",
+  "description": "Backend for a private League of Legends companion website, providing player statistics, match data, and current game information through a custom API powered by Riot Games data.",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/jaronWalter/League-of-Legends-Companion-Backend.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs",
+  "bugs": {
+    "url": "https://github.com/jaronWalter/League-of-Legends-Companion-Backend/issues"
+  },
+  "homepage": "https://github.com/jaronWalter/League-of-Legends-Companion-Backend#readme",
+  "devDependencies": {
+    "@types/node": "^26.4.0",
+    "typescript": "^7.0.2"
+  }
+}
