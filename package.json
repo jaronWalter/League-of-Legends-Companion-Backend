@@ -4,7 +4,8 @@
   "description": "Backend for a private League of Legends companion website, providing player statistics, match data, and current game information through a custom API powered by Riot Games data.",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "dev": "tsx src/server.ts"
   },
   "repository": {
     "type": "git",
@@ -19,7 +20,12 @@
   },
   "homepage": "https://github.com/jaronWalter/League-of-Legends-Companion-Backend#readme",
   "devDependencies": {
+    "@types/express": "^5.0.6",
     "@types/node": "^26.4.0",
+    "tsx": "^4.23.13",
     "typescript": "^7.0.2"
+  },
+  "dependencies": {
+    "express": "^5.2.1"
   }
 }
