@@ -3,6 +3,8 @@ import "dotenv/config";
 import testRouter from "./routes/test";
 import playerRouter from "./routes/player.js";
 import cors from "cors";
+import { loadChampions } from "./services/championService.js";
+
 
 const riotApiKey = process.env.RIOT_API_KEY;
 
@@ -17,6 +19,18 @@ const port = 3000;
 app.use("/api/test", testRouter);
 app.use("/api/player", playerRouter);
 
-app.listen(port, () => {
-    console.log(`Server running on http://localhost:${port}`);
-});
+async function startServer() {
+    const oneWeek = 7 * 24 * 60 * 60 * 1000;
+
+    await loadChampions();
+
+    setInterval(async () => {
+        await loadChampions();
+    }, oneWeek);
+
+    app.listen(port, () => {
+        console.log(`Server running on http://localhost:${port}`);
+    });
+}
+
+startServer();

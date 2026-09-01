@@ -1,6 +1,5 @@
-import { getAccountByRiotId } from "../services/riot/riotAPI.js";
-import {getCurrentGameByPuuid} from "../services/riot/riotAPI.js";
 import { Router } from "express";
+import { getPlayerData } from "../services/playerService.js";
 
 const router = Router();
 
@@ -10,25 +9,13 @@ router.get("/", async (req, res) => {
 
     if (typeof gameName !== "string" || typeof tagLine !== "string") {
         res.status(400).json({
-            error: "wrong input."
+            error: "gameName and tagLine are required."
         });
         return;
     }
-    const account = await getAccountByRiotId(gameName, tagLine);
-    console.log("ACCOUNT:", account);
-    const currentGame = await getCurrentGameByPuuid(account.puuid);
-    if (!currentGame) {
-        res.json({
-            inGame: false
-        });
-        return;
-    }
-    res.json({
-        inGame: true,
-        gameLength: currentGame.gameLength,
-        queueType: currentGame.gameQueueConfigId,
-        participants: currentGame.participants
-    });
+
+    const playerData = await getPlayerData(gameName, tagLine);
+    res.json(playerData);
 });
 
 export default router;

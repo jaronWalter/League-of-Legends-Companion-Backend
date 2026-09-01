@@ -48,3 +48,21 @@ export async function getCurrentGameByPuuid(puuid: string) {
     }
     return response.json();
 }
+
+export async function getRanksByPuuid(puuid: string) {
+    const url =
+        `https://euw1.api.riotgames.com/lol/league/v4/entries/by-puuid/${encodeURIComponent(puuid)}`;
+
+
+    const response = await fetch(url, {
+        headers: {
+            "X-Riot-Token": riotToken
+        }
+    });
+
+    if (!response.ok) {
+        throw new Error(`Riot API error: ${response.status}`);
+    }
+
+    return response.json();
+}
