@@ -1,6 +1,5 @@
 import express from "express";
 import "dotenv/config";
-import testRouter from "./routes/test";
 import playerRouter from "./routes/player.js";
 import cors from "cors";
 import { loadChampions } from "./services/championService.js";
@@ -13,10 +12,14 @@ if (!riotApiKey) {
 }
 
 const app = express();
-app.use(cors());
-const port = 3000;
+app.use(cors({
+    origin: [
+        "https://projectscout.framer.website"
+    ]
+}));
 
-app.use("/api/test", testRouter);
+const port = Number(process.env.PORT) || 3000;
+
 app.use("/api/player", playerRouter);
 
 async function startServer() {
@@ -28,8 +31,8 @@ async function startServer() {
         await loadChampions();
     }, oneWeek);
 
-    app.listen(port, () => {
-        console.log(`Server running on http://localhost:${port}`);
+    app.listen(port, "0.0.0.0", () => {
+        console.log(`Server running on port ${port}`);
     });
 }
 
