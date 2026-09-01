@@ -1,3 +1,5 @@
+import { RiotApiError } from "./riotApiError.js";
+
 const riotApiKey = process.env.RIOT_API_KEY;
 
 if (!riotApiKey) {
@@ -21,7 +23,10 @@ export async function getAccountByRiotId(
     });
 
     if (!response.ok) {
-        throw new Error(`Riot API error: ${response.status}`);
+        throw new RiotApiError(
+            response.status,
+            `Riot API error: ${response.status}`
+        );
     }
 
     return response.json();
@@ -31,20 +36,20 @@ export async function getCurrentGameByPuuid(puuid: string) {
     const url =
         `https://EUW1.api.riotgames.com/lol/spectator/v5/active-games/by-summoner/${encodeURIComponent(puuid)}`;
 
-    console.log("PUUID:", puuid);
-    console.log("URL:", url);
-
     const response = await fetch(url, {
         headers: {
             "X-Riot-Token": riotToken
         }
     });
-    if (response.status === 404) {
-        console.log("Spectator returned 404");
-        return null; // kein aktuelles game gefunden
-    }
     if (!response.ok) {
-        throw new Error(`Riot API error: ${response.status}`);
+        if (response.status === 404) {
+            return null;
+        }
+
+        throw new RiotApiError(
+            response.status,
+            `Riot API error: ${response.status}`
+        );
     }
     return response.json();
 }
@@ -61,7 +66,10 @@ export async function getRanksByPuuid(puuid: string) {
     });
 
     if (!response.ok) {
-        throw new Error(`Riot API error: ${response.status}`);
+        throw new RiotApiError(
+            response.status,
+            `Riot API error: ${response.status}`
+        );
     }
 
     return response.json();

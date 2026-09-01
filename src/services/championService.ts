@@ -3,8 +3,22 @@ const champions = new Map<number, {
     image: string;
 }>();
 
+async function fetchWithRetry(url: string, retries = 3) {
+    for (let attempt = 1; attempt <= retries; attempt++) {
+        try {
+            return await fetch(url);
+        } catch (error) {
+            console.log(`Fetch failed, attempt ${attempt}/${retries}`);
+
+            await new Promise(resolve => setTimeout(resolve, 2000));
+        }
+    }
+
+    throw new Error("Fetch failed");
+}
+
 export async function loadChampions() {
-    const versionResponse = await fetch(
+    const versionResponse = await fetchWithRetry(
         "https://ddragon.leagueoflegends.com/api/versions.json"
     );
 
@@ -15,7 +29,7 @@ export async function loadChampions() {
     const versions: string[] = await versionResponse.json();
     const latestVersion = versions[0];
 
-    const response = await fetch(
+    const response = await fetchWithRetry(
         `https://ddragon.leagueoflegends.com/cdn/${latestVersion}/data/en_US/champion.json`
     );
 

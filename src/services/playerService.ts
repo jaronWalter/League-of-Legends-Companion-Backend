@@ -6,8 +6,6 @@ import {
 
 import {getChampion} from "./championService.js";
 
-
-
 export async function getPlayerData(gameName: string, tagLine: string) {
     const account = await getAccountByRiotId(gameName, tagLine);
 
@@ -33,9 +31,11 @@ export async function getPlayerData(gameName: string, tagLine: string) {
             const flex = ranks.find(
                 (rank: any) => rank.queueType === "RANKED_FLEX_SR"
             );
+            const riotId = participant.riotId?.split("#");
 
             return {
-                name: participant.riotId ?? "Unknown",
+                name: riotId[0] ?? "StreamerMode",
+                tag: riotId[1] ?? "Unknown",
                 champion: getChampion(participant.championId),
                 team: participant.teamId,
                 ranks: {
