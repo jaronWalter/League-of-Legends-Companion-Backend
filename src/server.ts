@@ -1,6 +1,7 @@
 import express from "express";
 import "dotenv/config";
 import playerRouter from "./routes/player.js";
+import ingameRouter from "./routes/ingameCheck.js";
 import cors from "cors";
 import { loadChampions } from "./services/championService.js";
 
@@ -21,6 +22,7 @@ app.use(cors({
 const port = Number(process.env.PORT) || 3000;
 
 app.use("/api/player", playerRouter);
+app.use("/api/ingameCheck", ingameRouter);
 
 async function startServer() {
     const oneWeek = 7 * 24 * 60 * 60 * 1000;

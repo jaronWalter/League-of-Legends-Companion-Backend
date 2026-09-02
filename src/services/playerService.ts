@@ -14,6 +14,7 @@ export async function getPlayerData(gameName: string, tagLine: string) {
     if (!currentGame) {
         return {
             inGame: false,
+            puuid: account.puuid,
             lastGame: null
         };
     }
@@ -86,6 +87,7 @@ export async function getPlayerData(gameName: string, tagLine: string) {
 
     return {
         inGame: true,
+        puuid: account.puuid,
         game: {
             duration: currentGame.gameLength,
             queueType: currentGame.gameQueueConfigId
