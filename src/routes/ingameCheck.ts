@@ -2,7 +2,7 @@ import { Router } from "express";
 import { getCurrentGameByPuuid } from "../services/riot/riotAPI.js";
 import { RiotApiError } from "../services/riot/riotApiError.js";
 
-//api route returning only ingame: false/true
+
 
 const router = Router();
 

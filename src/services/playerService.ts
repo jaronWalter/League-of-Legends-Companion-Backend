@@ -6,15 +6,22 @@ import {
 
 import {getChampion} from "./championService.js";
 
-export async function getPlayerData(gameName: string, tagLine: string) {
-    const account = await getAccountByRiotId(gameName, tagLine);
+export async function getPlayerData(gameName: string, tagLine: string, puuid: string) {
+    let id: string;
+    if (puuid !== "none") {
+        id = puuid;
+    }
+    else {
+        const account = await getAccountByRiotId(gameName, tagLine);
+        id = account.puuid;
+    }
 
-    const currentGame = await getCurrentGameByPuuid(account.puuid);
+    const currentGame = await getCurrentGameByPuuid(id);
 
     if (!currentGame) {
         return {
             inGame: false,
-            puuid: account.puuid,
+            puuid: id,
             lastGame: null
         };
     }
@@ -87,7 +94,7 @@ export async function getPlayerData(gameName: string, tagLine: string) {
 
     return {
         inGame: true,
-        puuid: account.puuid,
+        puuid: id,
         game: {
             duration: currentGame.gameLength,
             queueType: currentGame.gameQueueConfigId

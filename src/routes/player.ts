@@ -7,8 +7,9 @@ const router = Router();
 router.get("/", async (req, res) => {
     const gameName = req.query.gameName;
     const tagLine = req.query.tagLine;
+    const puuid = req.query.puuid;
 
-    if (typeof gameName !== "string" || typeof tagLine !== "string" || gameName.trim() === "" || tagLine.trim() === "") {
+    if (typeof gameName !== "string" || typeof tagLine !== "string" || typeof puuid !== "string" || gameName.trim() === "" || tagLine.trim() === "") {
         res.status(400).json({
             error: "gameName and tagLine are required."
         });
@@ -16,7 +17,7 @@ router.get("/", async (req, res) => {
     }
 
     try {
-        const playerData = await getPlayerData(gameName, tagLine);
+        const playerData = await getPlayerData(gameName, tagLine, puuid);
         res.json(playerData);
     } catch (error) {
         console.error(error);
