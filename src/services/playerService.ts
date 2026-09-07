@@ -43,7 +43,7 @@ export async function getPlayerData(gameName: string, tagLine: string, puuid: st
                 : team200Positions;
 
             const playerPosition = positionData.find(
-                (entry: any) => entry.puuid === participant.puuid
+                (entry: any) => entry.participant === participant
             );
             const champ = getChampion(participant.championId)
             const ranks = participant.puuid

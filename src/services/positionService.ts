@@ -8,7 +8,6 @@ const normalPositions = ["TOP", "MID", "BOT", "SUPPORT"];
 
 export function determinePositions(team: any[]) {
 
-    // Find jungler by Smite
     const junglePlayer = team.find(
         (participant: any) =>
             participant.spell1Id === 11 ||
@@ -16,13 +15,12 @@ export function determinePositions(team: any[]) {
     );
 
     if (!junglePlayer) {
-        // No Smite found
         return [];
     }
 
     const positions = [
         {
-            puuid: junglePlayer.puuid,
+            participant: junglePlayer,
             position: "JUNGLE"
         }
     ];
@@ -87,10 +85,7 @@ export function determinePositions(team: any[]) {
     // Find the assignment with the highest total score
     for (const assignment of assignments) {
 
-        const score = calculateScore(
-            assignment,
-            playerScores
-        );
+        const score = calculateScore(assignment, playerScores);
 
         if (score > bestScore) {
             bestScore = score;
@@ -99,12 +94,11 @@ export function determinePositions(team: any[]) {
     }
 
 
-    // Add the calculated positions
     if (bestAssignment) {
         for (const assignedPlayer of bestAssignment) {
 
             positions.push({
-                puuid: playerScores[assignedPlayer.playerIndex].participant.puuid,
+                participant: playerScores[assignedPlayer.playerIndex].participant,
                 position: assignedPlayer.position
             });
 
@@ -115,11 +109,7 @@ export function determinePositions(team: any[]) {
 }
 
 
-function addSpellBonus(
-    scores: any,
-    spellBonuses: any
-) {
-
+function addSpellBonus(scores: any, spellBonuses: any) {
     if (!spellBonuses) {
         return;
     }
@@ -128,7 +118,6 @@ function addSpellBonus(
         scores[position] += spellBonuses[position];
     }
 }
-
 
 function findAssignments() {
 
@@ -188,20 +177,13 @@ function findAssignments() {
 }
 
 
-function calculateScore(
-    assignment: any[],
-    playerScores: any[]
-) {
+function calculateScore(assignment: any[], playerScores: any[]) {
 
     let totalScore = 0;
 
     for (const assignedPlayer of assignment) {
-
-        const player =
-            playerScores[assignedPlayer.playerIndex];
-
-        totalScore +=
-            player.scores[assignedPlayer.position];
+        const player = playerScores[assignedPlayer.playerIndex];
+        totalScore += player.scores[assignedPlayer.position];
     }
 
     return totalScore;
