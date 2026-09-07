@@ -3,6 +3,7 @@ import {
     getCurrentGameByPuuid, getLastMatchByPuuid,
     getRanksByPuuid
 } from "./riot/riotAPI.js";
+
 import {getChampion} from "./championService.js";
 import { determinePositions } from "./positionService.js";
 
