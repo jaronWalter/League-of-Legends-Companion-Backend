@@ -74,3 +74,41 @@ export async function getRanksByPuuid(puuid: string) {
 
     return response.json();
 }
+
+async function getLastMatchIdByPuuid(puuid: string) {
+    const url =  `https://europe.api.riotgames.com/lol/match/v5/matches/by-puuid/${encodeURIComponent(puuid)}/ids?start=0&count=1`;
+
+    const response = await fetch(url, {
+        headers: {
+            "X-Riot-Token": riotToken
+        }
+    });
+
+    if (!response.ok) {
+        throw new RiotApiError(
+            response.status,
+            `Riot API error: ${response.status}`
+        );
+    }
+    const matchIds = await response.json() as string[];
+    return matchIds[0];
+}
+
+export async function getLastMatchByPuuid(puuid: string) {
+    const url =  `https://europe.api.riotgames.com/lol/match/v5/matches/${encodeURIComponent(await getLastMatchIdByPuuid(puuid))}`;
+
+    const response = await fetch(url, {
+        headers: {
+            "X-Riot-Token": riotToken
+        }
+    });
+
+    if (!response.ok) {
+        throw new RiotApiError(
+            response.status,
+            `Riot API error: ${response.status}`
+        );
+    }
+
+    return response.json();
+}
