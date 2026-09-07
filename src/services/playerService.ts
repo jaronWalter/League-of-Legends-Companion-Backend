@@ -253,12 +253,12 @@ async function getLastGameData(id: string) {
                         ? Math.round((playerSolo.wins / (playerSolo.wins + playerSolo.losses)) * 100)
                         : 0,
 
-                    flex: playerSolo
-                        ? `${playerSolo.tier} ${playerSolo.rank}`
+                    flex: playerFlex
+                        ? `${playerFlex.tier} ${playerFlex.rank}`
                         : "not placed",
 
-                    flexLp: playerSolo
-                        ? playerSolo.leaguePoints
+                    flexLp: playerFlex
+                        ? playerFlex.leaguePoints
                         : 0,
 
                     flexWins: playerFlex

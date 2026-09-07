@@ -5,7 +5,6 @@ import { getChampion } from "./championService.js";
 
 const normalPositions = ["TOP", "MID", "BOT", "SUPPORT"];
 
-
 export function determinePositions(team: any[]) {
 
     const junglePlayer = team.find(
