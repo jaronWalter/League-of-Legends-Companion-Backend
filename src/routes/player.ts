@@ -11,7 +11,7 @@ router.get("/", async (req, res) => {
 
     if (typeof gameName !== "string" || typeof tagLine !== "string" || typeof puuid !== "string" || gameName.trim() === "" || tagLine.trim() === "") {
         res.status(400).json({
-            error: "gameName and tagLine are required."
+            error: "gameName, tagLine and puuid are required. puuid = none if unknown"
         });
         return;
     }

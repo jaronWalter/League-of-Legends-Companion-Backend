@@ -3,8 +3,8 @@ import {
     getCurrentGameByPuuid, getLastMatchByPuuid,
     getRanksByPuuid
 } from "./riot/riotAPI.js";
-
 import {getChampion} from "./championService.js";
+import { determinePositions } from "./positionService.js";
 
 export async function getPlayerData(gameName: string, tagLine: string, puuid: string) {
     let id: string;
@@ -25,8 +25,27 @@ export async function getPlayerData(gameName: string, tagLine: string, puuid: st
         };
     }
 
+    const team100 = currentGame.participants.filter(
+        (participant: any) => participant.teamId === 100
+    );
+
+    const team200 = currentGame.participants.filter(
+        (participant: any) => participant.teamId === 200
+    );
+
+    const team100Positions = determinePositions(team100);
+    const team200Positions = determinePositions(team200);
+
     const players = await Promise.all(
         currentGame.participants.map(async (participant: any) => {
+            const positionData = participant.teamId === 100
+                ? team100Positions
+                : team200Positions;
+
+            const playerPosition = positionData.find(
+                (entry: any) => entry.puuid === participant.puuid
+            );
+            const champ = getChampion(participant.championId)
             const ranks = participant.puuid
                 ? await getRanksByPuuid(participant.puuid)
                 : [];
@@ -43,7 +62,8 @@ export async function getPlayerData(gameName: string, tagLine: string, puuid: st
             return {
                 name: riotId[0] ?? "StreamerMode",
                 tag: riotId[1] ?? "Unknown",
-                champion: getChampion(participant.championId),
+                champion: champ,
+                position: playerPosition?.position ?? "unknown",
                 team: participant.teamId,
                 ranks: {
                     solo: solo
@@ -102,6 +122,9 @@ export async function getPlayerData(gameName: string, tagLine: string, puuid: st
     };
 }
 
+
+
+
 async function getLastGameData(id: string) {
     const lastGame = await getLastMatchByPuuid(id);
     const player = lastGame.info.participants.find(
@@ -135,7 +158,7 @@ async function getLastGameData(id: string) {
                         name: participant.riotIdGameName,
                         tagLine: participant.riotIdTagline,
                         champion: getChampion(participant.championId),
-                        role: participant.teamPosition ?? "unknown",
+                        role: normalizePosition(participant.teamPosition),
                         team: participant.teamId,
                         result: participant.win ? "win" : "loss",
                         kills: participant.kills,
@@ -201,7 +224,7 @@ async function getLastGameData(id: string) {
                 name: player.riotIdGameName,
                 tagLine: player.riotIdTagline,
                 champion: getChampion(player.championId),
-                role: player.teamPosition ?? "unknown",
+                role: normalizePosition(player.teamPosition) ?? "unknown",
                 team: player.teamId,
                 result: player.win ? "win" : "loss",
                 kills: player.kills,
@@ -255,4 +278,20 @@ async function getLastGameData(id: string) {
             players
 
     }
+}
+
+function normalizePosition(position: string | undefined) {
+    if (position === "MIDDLE") {
+        return "MID";
+    }
+
+    if (position === "BOTTOM") {
+        return "BOT";
+    }
+
+    if (position === "UTILITY") {
+        return "SUPPORT";
+    }
+
+    return position ?? "unknown";
 }
