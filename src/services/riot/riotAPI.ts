@@ -75,8 +75,8 @@ export async function getRanksByPuuid(puuid: string) {
     return response.json();
 }
 
-async function getLastMatchIdByPuuid(puuid: string) {
-    const url =  `https://europe.api.riotgames.com/lol/match/v5/matches/by-puuid/${encodeURIComponent(puuid)}/ids?start=0&count=1`;
+export async function getMatchIdsByPuuid(puuid: string, start: number, count: number) {
+    const url =  `https://europe.api.riotgames.com/lol/match/v5/matches/by-puuid/${encodeURIComponent(puuid)}/ids?start=${encodeURIComponent(start)}&count=${encodeURIComponent(count)}`;
 
     const response = await fetch(url, {
         headers: {
@@ -90,12 +90,12 @@ async function getLastMatchIdByPuuid(puuid: string) {
             `Riot API error: ${response.status}`
         );
     }
-    const matchIds = await response.json() as string[];
-    return matchIds[0];
+    return await response.json() as string[];
 }
 
 export async function getLastMatchByPuuid(puuid: string) {
-    const url =  `https://europe.api.riotgames.com/lol/match/v5/matches/${encodeURIComponent(await getLastMatchIdByPuuid(puuid))}`;
+    const game = await getMatchIdsByPuuid(puuid, 0, 1)
+    const url =  `https://europe.api.riotgames.com/lol/match/v5/matches/${encodeURIComponent(game[0])}`;
 
     const response = await fetch(url, {
         headers: {
@@ -111,4 +111,29 @@ export async function getLastMatchByPuuid(puuid: string) {
     }
 
     return response.json();
+}
+
+export async function getMatchesByMatchIds(matchIds : string[]) {
+    const matches = [];
+
+    for (const matchId of matchIds) {
+        const url =  `https://europe.api.riotgames.com/lol/match/v5/matches/${encodeURIComponent(matchId)}`;
+
+        const response = await fetch(url, {
+            headers: {
+                "X-Riot-Token": riotToken
+            }
+        });
+
+        if (!response.ok) {
+            throw new RiotApiError(
+                response.status,
+                `Riot API error: ${response.status}`
+            );
+        }
+
+        matches.push(await response.json());
+    }
+
+    return matches;
 }
