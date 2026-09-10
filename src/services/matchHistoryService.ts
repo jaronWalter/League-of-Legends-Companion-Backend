@@ -1,6 +1,6 @@
 import {getMatchesByMatchIds, getMatchIdsByPuuid, /*getRanksByPuuid*/} from "./riot/riotAPI.js";
 
-import {getChampion} from "./championService.js";
+import {getChampion, ensureChampionsLoaded} from "./championService.js";
 
 
 function wait(ms: number) {
@@ -8,6 +8,8 @@ function wait(ms: number) {
 }
 
 export async function getMatchHistory(id: string, start: number, count: number) {
+    await ensureChampionsLoaded();
+
     const matchIds = await getMatchIdsByPuuid(id, start, count);
 
     const matches = await getMatchesByMatchIds(matchIds);
@@ -19,6 +21,10 @@ export async function getMatchHistory(id: string, start: number, count: number) 
         const player = match.info.participants.find(
             (participant: any) => participant.puuid === id
         );
+
+        if (!player) {
+            continue;
+        }
         /*
         const playerRanks = await getRanksByPuuid(id);
 

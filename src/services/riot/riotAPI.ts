@@ -8,10 +8,82 @@ if (!riotApiKey) {
 
 const riotToken: string = riotApiKey;
 
+
+// -------------------------
+// Riot API Types
+// -------------------------
+
+interface RiotAccount {
+    puuid: string;
+    gameName: string;
+    tagLine: string;
+}
+
+interface RiotParticipant {
+    puuid?: string;
+    riotId?: string;
+    riotIdGameName?: string;
+    riotIdTagline?: string;
+    championId: number;
+    teamId: number;
+    teamPosition?: string;
+    summonerId?: string;
+}
+
+interface RiotCurrentGame {
+    gameLength: number;
+    gameQueueConfigId: number;
+    participants: RiotParticipant[];
+}
+
+interface RiotLeagueEntry {
+    leagueId: string;
+    summonerId: string;
+    puuid: string;
+    queueType: string;
+    tier: string;
+    rank: string;
+    leaguePoints: number;
+    wins: number;
+    losses: number;
+}
+
+interface RiotMatchParticipant {
+    puuid: string;
+    riotIdGameName?: string;
+    riotIdTagline?: string;
+    teamPosition?: string;
+    championId: number;
+    teamId: number;
+    kills: number;
+    deaths: number;
+    assists: number;
+    champLevel: number;
+    win: boolean;
+}
+
+interface RiotMatch {
+    metadata: {
+        matchId: string;
+        participants: string[];
+    };
+
+    info: {
+        gameCreation: number;
+        gameDuration: number;
+        gameMode: string;
+        gameType: string;
+        queueId: number;
+        participants: RiotMatchParticipant[];
+    };
+}
+
+
 export async function getAccountByRiotId(
     gameName: string,
     tagLine: string
-) {
+): Promise<RiotAccount> {
+
     const url =
         `https://europe.api.riotgames.com/riot/account/v1/accounts/by-riot-id/` +
         `${encodeURIComponent(gameName)}/${encodeURIComponent(tagLine)}`;
@@ -29,10 +101,18 @@ export async function getAccountByRiotId(
         );
     }
 
-    return response.json();
+    return response.json() as Promise<RiotAccount>;
 }
 
-export async function getCurrentGameByPuuid(puuid: string) {
+
+// -------------------------
+// Current Game
+// -------------------------
+
+export async function getCurrentGameByPuuid(
+    puuid: string
+): Promise<RiotCurrentGame | null> {
+
     const url =
         `https://EUW1.api.riotgames.com/lol/spectator/v5/active-games/by-summoner/${encodeURIComponent(puuid)}`;
 
@@ -41,6 +121,7 @@ export async function getCurrentGameByPuuid(puuid: string) {
             "X-Riot-Token": riotToken
         }
     });
+
     if (!response.ok) {
         if (response.status === 404) {
             return null;
@@ -51,13 +132,52 @@ export async function getCurrentGameByPuuid(puuid: string) {
             `Riot API error: ${response.status}`
         );
     }
-    return response.json();
+
+    return response.json() as Promise<RiotCurrentGame>;
 }
 
-export async function getRanksByPuuid(puuid: string) {
+
+// -------------------------
+// Ranks
+// -------------------------
+
+export async function getRanksByPuuid(
+    puuid: string
+): Promise<RiotLeagueEntry[]> {
+
     const url =
         `https://euw1.api.riotgames.com/lol/league/v4/entries/by-puuid/${encodeURIComponent(puuid)}`;
 
+    const response = await fetch(url, {
+        headers: {
+            "X-Riot-Token": riotToken
+        }
+    });
+
+    if (!response.ok) {
+        throw new RiotApiError(
+            response.status,
+            `Riot API error: ${response.status}`
+        );
+    }
+
+    return response.json() as Promise<RiotLeagueEntry[]>;
+}
+
+
+// -------------------------
+// Match IDs
+// -------------------------
+
+export async function getMatchIdsByPuuid(
+    puuid: string,
+    start: number,
+    count: number
+): Promise<string[]> {
+
+    const url =
+        `https://europe.api.riotgames.com/lol/match/v5/matches/by-puuid/` +
+        `${encodeURIComponent(puuid)}/ids?start=${encodeURIComponent(start)}&count=${encodeURIComponent(count)}`;
 
     const response = await fetch(url, {
         headers: {
@@ -72,11 +192,22 @@ export async function getRanksByPuuid(puuid: string) {
         );
     }
 
-    return response.json();
+    return response.json() as Promise<string[]>;
 }
 
-export async function getMatchIdsByPuuid(puuid: string, start: number, count: number) {
-    const url =  `https://europe.api.riotgames.com/lol/match/v5/matches/by-puuid/${encodeURIComponent(puuid)}/ids?start=${encodeURIComponent(start)}&count=${encodeURIComponent(count)}`;
+
+// -------------------------
+// Last Match
+// -------------------------
+
+export async function getLastMatchByPuuid(
+    puuid: string
+): Promise<RiotMatch> {
+
+    const game = await getMatchIdsByPuuid(puuid, 0, 1);
+
+    const url =
+        `https://europe.api.riotgames.com/lol/match/v5/matches/${encodeURIComponent(game[0])}`;
 
     const response = await fetch(url, {
         headers: {
@@ -90,34 +221,25 @@ export async function getMatchIdsByPuuid(puuid: string, start: number, count: nu
             `Riot API error: ${response.status}`
         );
     }
-    return await response.json() as string[];
+
+    return response.json() as Promise<RiotMatch>;
 }
 
-export async function getLastMatchByPuuid(puuid: string) {
-    const game = await getMatchIdsByPuuid(puuid, 0, 1)
-    const url =  `https://europe.api.riotgames.com/lol/match/v5/matches/${encodeURIComponent(game[0])}`;
 
-    const response = await fetch(url, {
-        headers: {
-            "X-Riot-Token": riotToken
-        }
-    });
+// -------------------------
+// Multiple Matches
+// -------------------------
 
-    if (!response.ok) {
-        throw new RiotApiError(
-            response.status,
-            `Riot API error: ${response.status}`
-        );
-    }
+export async function getMatchesByMatchIds(
+    matchIds: string[]
+): Promise<RiotMatch[]> {
 
-    return response.json();
-}
-
-export async function getMatchesByMatchIds(matchIds : string[]) {
-    const matches = [];
+    const matches: RiotMatch[] = [];
 
     for (const matchId of matchIds) {
-        const url =  `https://europe.api.riotgames.com/lol/match/v5/matches/${encodeURIComponent(matchId)}`;
+
+        const url =
+            `https://europe.api.riotgames.com/lol/match/v5/matches/${encodeURIComponent(matchId)}`;
 
         const response = await fetch(url, {
             headers: {
@@ -132,7 +254,9 @@ export async function getMatchesByMatchIds(matchIds : string[]) {
             );
         }
 
-        matches.push(await response.json());
+        matches.push(
+            await response.json() as RiotMatch
+        );
     }
 
     return matches;
