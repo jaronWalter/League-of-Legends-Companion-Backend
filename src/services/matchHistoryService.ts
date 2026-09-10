@@ -1,4 +1,4 @@
-import {getMatchesByMatchIds, getMatchIdsByPuuid, getRanksByPuuid} from "./riot/riotAPI.js";
+import {getMatchesByMatchIds, getMatchIdsByPuuid, /*getRanksByPuuid*/} from "./riot/riotAPI.js";
 
 import {getChampion} from "./championService.js";
 
@@ -19,7 +19,7 @@ export async function getMatchHistory(id: string, start: number, count: number) 
         const player = match.info.participants.find(
             (participant: any) => participant.puuid === id
         );
-
+        /*
         const playerRanks = await getRanksByPuuid(id);
 
         const playerSolo = playerRanks.find(
@@ -29,11 +29,11 @@ export async function getMatchHistory(id: string, start: number, count: number) 
         const playerFlex = playerRanks.find(
             (rank: any) => rank.queueType === "RANKED_FLEX_SR"
         );
-
+        */
         const players: any[] = [];
 
         for (const participant of match.info.participants) {
-
+            /*
             const ranks = await getRanksByPuuid(
                 participant.puuid
             );
@@ -47,7 +47,7 @@ export async function getMatchHistory(id: string, start: number, count: number) 
                 (rank: any) =>
                     rank.queueType === "RANKED_FLEX_SR"
             );
-
+            */
             const kda =
                 participant.deaths === 0
                     ? participant.kills + participant.assists
@@ -66,7 +66,7 @@ export async function getMatchHistory(id: string, start: number, count: number) 
                 assists: participant.assists,
                 level: participant.champLevel,
                 kda: Math.round(kda * 100) / 100,
-
+                /*
                 ranks: {
                     solo: solo
                         ? `${solo.tier} ${solo.rank}`
@@ -96,6 +96,7 @@ export async function getMatchHistory(id: string, start: number, count: number) 
                         )
                         : 0
                 }
+                */
             });
 
             await wait(60);
@@ -124,7 +125,7 @@ export async function getMatchHistory(id: string, start: number, count: number) 
                             player.deaths
                     ) * 100
                 ) / 100,
-
+                /*
                 ranks: {
                     solo: playerSolo
                         ? `${playerSolo.tier} ${playerSolo.rank}`
@@ -174,6 +175,8 @@ export async function getMatchHistory(id: string, start: number, count: number) 
                         )
                         : 0
                 }
+
+                 */
             },
 
             players
