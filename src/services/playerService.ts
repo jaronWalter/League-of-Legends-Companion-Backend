@@ -64,8 +64,12 @@ export async function getPlayerData(gameName: string, tagLine: string, puuid: st
             const riotId = participant.riotId?.split("#");
 
             return {
-                name: riotId?.[0] ?? "StreamerMode",
-                tag: riotId?.[1] ?? "Unknown",
+                name: participant.puuid
+                    ? riotId?.[0] ?? "Unknown"
+                    : champ?.name ?? "Unknown",
+                tag: participant.puuid
+                    ? riotId?.[1] ?? "Unknown"
+                    : "Unknown",
                 champion: champ,
                 position: playerPosition?.position ?? "unknown",
                 team: participant.teamId,
@@ -173,6 +177,10 @@ async function getLastGameData(id: string) {
                         assists: participant.assists,
                         level: participant.champLevel,
                         kda: Math.round(kda * 100) / 100,
+                        totalGold: participant.goldEarned,
+                        creepScore: participant.neutralMinionsKilled + participant.totalMinionsKilled,
+                        visionScore: participant.visionScore,
+                        totalChampionDamage: participant.totalDamageDealtToChampions,
 
                         ranks: {
                             solo: solo
@@ -239,6 +247,11 @@ async function getLastGameData(id: string) {
                 assists: player.assists,
                 level: player.champLevel,
                 kda: Math.round((player.deaths === 0 ? player.kills + player.assists : (player.kills + player.assists) / player.deaths) * 100) / 100,
+                totalGold: player.goldEarned,
+                creepScore: player.neutralMinionsKilled + player.totalMinionsKilled,
+                visionScore: player.visionScore,
+                totalChampionDamage: player.totalDamageDealtToChampions,
+
                 ranks: {
                     solo: playerSolo
                         ? `${playerSolo.tier} ${playerSolo.rank}`

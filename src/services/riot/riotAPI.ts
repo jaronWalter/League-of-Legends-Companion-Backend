@@ -60,6 +60,11 @@ interface RiotMatchParticipant {
     assists: number;
     champLevel: number;
     win: boolean;
+    goldEarned: number;
+    neutralMinionsKilled: number;
+    totalMinionsKilled: number;
+    visionScore: number;
+    totalDamageDealtToChampions: number;
 }
 
 interface RiotMatch {
