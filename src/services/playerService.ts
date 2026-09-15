@@ -4,10 +4,11 @@ import {
     getRanksByPuuid
 } from "./riot/riotAPI.js";
 
-import {getChampion} from "./championService.js";
+import {getChampion, ensureChampionsLoaded} from "./championService.js";
 import { determinePositions } from "./positionService.js";
 
 export async function getPlayerData(gameName: string, tagLine: string, puuid: string) {
+    await ensureChampionsLoaded();
     let id: string;
     if (puuid !== "none") {
         id = puuid;
@@ -25,6 +26,8 @@ export async function getPlayerData(gameName: string, tagLine: string, puuid: st
             lastGame: await getLastGameData(id)
         };
     }
+
+    console.log(JSON.stringify(currentGame, null, 2));
 
     const team100 = currentGame.participants.filter(
         (participant: any) => participant.teamId === 100
@@ -61,8 +64,8 @@ export async function getPlayerData(gameName: string, tagLine: string, puuid: st
             const riotId = participant.riotId?.split("#");
 
             return {
-                name: riotId[0] ?? "StreamerMode",
-                tag: riotId[1] ?? "Unknown",
+                name: riotId?.[0] ?? "StreamerMode",
+                tag: riotId?.[1] ?? "Unknown",
                 champion: champ,
                 position: playerPosition?.position ?? "unknown",
                 team: participant.teamId,
@@ -131,6 +134,10 @@ async function getLastGameData(id: string) {
     const player = lastGame.info.participants.find(
         (participant: any) => participant.puuid === id
     );
+    if (!player) {
+        throw new Error("Player not found in last match");
+    }
+
     const playerRanks = await getRanksByPuuid(id);
     const playerSolo = playerRanks.find(
         (rank: any) => rank.queueType === "RANKED_SOLO_5x5"
@@ -155,7 +162,6 @@ async function getLastGameData(id: string) {
                     : (participant.kills + participant.assists) / participant.deaths;
 
                 return {
-
                         name: participant.riotIdGameName,
                         tagLine: participant.riotIdTagline,
                         champion: getChampion(participant.championId),
