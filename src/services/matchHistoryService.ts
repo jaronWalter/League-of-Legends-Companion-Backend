@@ -3,10 +3,6 @@ import {getAccountByRiotId, getMatchesByMatchIds, getMatchIdsByPuuid, /*getRanks
 import {getChampion, ensureChampionsLoaded} from "./championService.js";
 
 
-function wait(ms: number) {
-    return new Promise(resolve => setTimeout(resolve, ms));
-}
-
 export async function getMatchIds(gameName: string, tagLine: string, puuid: string) {
     let id: string;
 
