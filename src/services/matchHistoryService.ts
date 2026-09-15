@@ -109,6 +109,7 @@ export async function getMatchHistory(matchIds: string[]) {
         }
 
         matchHistory.push({
+            matchId: match.metadata.matchId,
             gameDuration: match.info.gameDuration,
             queueId: match.info.queueId,
 
