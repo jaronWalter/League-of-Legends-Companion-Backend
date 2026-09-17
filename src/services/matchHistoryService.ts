@@ -1,6 +1,7 @@
 import {getAccountByRiotId, getMatchesByMatchIds, getMatchIdsByPuuid, /*getRanksByPuuid*/} from "./riot/riotAPI.js";
 
 import {getChampion, ensureChampionsLoaded} from "./championService.js";
+import {ensureItemsLoaded, getItem} from "./itemService";
 
 
 export async function getMatchIds(gameName: string, tagLine: string, puuid: string) {
@@ -22,6 +23,7 @@ export async function getMatchIds(gameName: string, tagLine: string, puuid: stri
 
 export async function getMatchHistory(matchIds: string[]) {
     await ensureChampionsLoaded();
+    await ensureItemsLoaded();
 
     const matches = await getMatchesByMatchIds(matchIds);
 
@@ -69,6 +71,15 @@ export async function getMatchHistory(matchIds: string[]) {
                 visionScore: participant.visionScore,
                 totalChampionDamage: participant.totalDamageDealtToChampions,
                 kda: Math.round(kda * 100) / 100,
+                items: [
+                    getItem(participant.item0),
+                    getItem(participant.item1),
+                    getItem(participant.item2),
+                    getItem(participant.item3),
+                    getItem(participant.item4),
+                    getItem(participant.item5),
+                    getItem(participant.item6),
+                ],
 
                 /*
                 ranks: {
