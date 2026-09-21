@@ -153,9 +153,41 @@ export async function getMatchDetails(matchIds: string[]){
     const matchDetails = [];
 
     for (const match of matches) {
-
         const timeline = await getMatchTimeline(match.metadata.matchId);
         const players = [];
+        const kills = [];
+
+        for (const frame of timeline.info.frames) {
+            for (const event of frame.events) {
+                if (event.type !== "CHAMPION_KILL") {
+                    continue;
+                }
+
+                const killer = match.info.participants.find(
+                    participant => participant.participantId === event.killerId
+                );
+
+                const victim = match.info.participants.find(
+                    participant => participant.participantId === event.victimId
+                );
+
+                if (!killer || !victim || !event.position) {
+                    continue;
+                }
+
+                const time = event.timestamp / 1000;
+
+                kills.push({
+                    time,
+                    killerPuuid: killer.puuid,
+                    victimPuuid: victim.puuid,
+                    position: {
+                        x: event.position.x,
+                        y: event.position.y
+                    }
+                });
+            }
+        }
 
         for (const participant of match.info.participants) {
             const ranks = await getRanksByPuuid(participant.puuid);
@@ -171,6 +203,7 @@ export async function getMatchDetails(matchIds: string[]){
             players.push({
                 name: participant.riotIdGameName,
                 tagLine: participant.riotIdTagline,
+                puuid: participant.puuid,
 
                 ranks: {
                     solo: solo
@@ -219,7 +252,7 @@ export async function getMatchDetails(matchIds: string[]){
         matchDetails.push({
             matchId: match.metadata.matchId,
             players,
-            timeline
+            kills
         });
 
     }
