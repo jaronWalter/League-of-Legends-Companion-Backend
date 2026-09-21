@@ -90,6 +90,51 @@ interface RiotMatch {
     };
 }
 
+interface RiotTimelineParticipantFrame {
+    participantId: number;
+    totalGold: number;
+    currentGold: number;
+    minionsKilled: number;
+    jungleMinionsKilled: number;
+    xp: number;
+    level: number;
+    position: {
+        x: number;
+        y: number;
+    };
+}
+
+interface RiotTimelineEvent {
+    type: string;
+    timestamp: number;
+    participantId?: number;
+    killerId?: number;
+    victimId?: number;
+    assistingParticipantIds?: number[];
+    position?: {
+        x: number;
+        y: number;
+    };
+}
+
+interface RiotTimelineFrame {
+    timestamp: number;
+    participantFrames: Record<string, RiotTimelineParticipantFrame>;
+    events: RiotTimelineEvent[];
+}
+
+interface RiotMatchTimeline {
+    metadata: {
+        dataVersion: string;
+        matchId: string;
+        participants: string[];
+    };
+    info: {
+        frameInterval: number;
+        frames: RiotTimelineFrame[];
+    };
+}
+
 
 export async function getAccountByRiotId(
     gameName: string,
@@ -242,9 +287,7 @@ export async function getLastMatchByPuuid(
 // Multiple Matches
 // -------------------------
 
-export async function getMatchesByMatchIds(
-    matchIds: string[]
-): Promise<RiotMatch[]> {
+export async function getMatchesByMatchIds(matchIds: string[]): Promise<RiotMatch[]> {
 
     const matches: RiotMatch[] = [];
 
@@ -272,4 +315,19 @@ export async function getMatchesByMatchIds(
     }
 
     return matches;
+}
+
+export async function getMatchTimeline(matchId: string): Promise<RiotMatchTimeline> {
+    const url =  `https://europe.api.riotgames.com/lol/match/v5/matches/${encodeURIComponent(matchId)}/timeline`;
+    const response = await fetch(url, {
+        headers: {
+            "X-Riot-Token": riotToken
+        }
+    });
+
+    if (!response.ok) {
+        throw new RiotApiError(response.status, `Riot API error: ${response.status}`);
+    }
+
+    return await response.json() as RiotMatchTimeline;
 }

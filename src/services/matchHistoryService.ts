@@ -1,4 +1,4 @@
-import {getAccountByRiotId, getMatchesByMatchIds, getMatchIdsByPuuid, /*getRanksByPuuid*/} from "./riot/riotAPI.js";
+import {getAccountByRiotId, getMatchesByMatchIds, getMatchIdsByPuuid, getRanksByPuuid, getMatchTimeline} from "./riot/riotAPI.js";
 
 import {getChampion, ensureChampionsLoaded} from "./championService.js";
 import {ensureItemsLoaded, getItem} from "./itemService";
@@ -146,4 +146,82 @@ function normalizePosition(position: string | undefined) {
     }
 
     return position ?? "unknown";
+}
+
+export async function getMatchDetails(matchIds: string[]){
+    const matches = await getMatchesByMatchIds(matchIds);
+    const matchDetails = [];
+
+    for (const match of matches) {
+
+        const timeline = await getMatchTimeline(match.metadata.matchId);
+        const players = [];
+
+        for (const participant of match.info.participants) {
+            const ranks = await getRanksByPuuid(participant.puuid);
+
+            const solo = ranks.find(
+                rank => rank.queueType === "RANKED_SOLO_5x5"
+            );
+
+            const flex = ranks.find(
+                rank => rank.queueType === "RANKED_FLEX_SR"
+            );
+
+            players.push({
+                name: participant.riotIdGameName,
+                tagLine: participant.riotIdTagline,
+
+                ranks: {
+                    solo: solo
+                        ? `${solo.tier} ${solo.rank}`
+                        : "not placed",
+
+                    soloLp: solo
+                        ? solo.leaguePoints
+                        : 0,
+
+                    soloWins: solo
+                        ? solo.wins
+                        : 0,
+
+                    soloLosses: solo
+                        ? solo.losses
+                        : 0,
+
+                    soloWinrate: solo
+                        ? Math.round((solo.wins / (solo.wins + solo.losses)) * 100)
+                        : 0,
+
+                    flex: flex
+                        ? `${flex.tier} ${flex.rank}`
+                        : "not placed",
+
+                    flexLp: flex
+                        ? flex.leaguePoints
+                        : 0,
+
+                    flexWins: flex
+                        ? flex.wins
+                        : 0,
+
+                    flexLosses: flex
+                        ? flex.losses
+                        : 0,
+
+                    flexWinrate: flex
+                        ? Math.round((flex.wins / (flex.wins + flex.losses)) * 100)
+                        : 0
+                }
+            });
+        }
+
+        matchDetails.push({
+            matchId: match.metadata.matchId,
+            players,
+            timeline
+        });
+
+    }
+    return matchDetails;
 }

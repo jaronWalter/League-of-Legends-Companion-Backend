@@ -1,6 +1,7 @@
 import { Router } from "express";
 import { RiotApiError } from "../services/riot/riotApiError.js";
-import { getMatchHistory, getMatchIds } from "../services/matchHistoryService.js";
+import { getMatchHistory, getMatchIds, getMatchDetails } from "../services/matchHistoryService.js";
+
 
 const router = Router();
 
@@ -61,7 +62,6 @@ router.get("/ids", async (req, res) => {
 router.get("/", async (req, res) => {
     const ids = req.query.matchIds;
 
-
     if (
         typeof ids !== "string" ||
         ids.trim() === ""
@@ -91,6 +91,61 @@ router.get("/", async (req, res) => {
 
     } catch (error) {
         console.error(error);
+
+        res.status(500).json({
+            error: "Internal server error"
+        });
+    }
+});
+
+router.get("/full", async (req, res) => {
+    const ids = req.query.matchIds;
+
+    if (typeof ids !== "string" || ids.trim() === "") {
+        res.status(400).json({error: "ids are required"});
+        return;
+    }
+
+    const matchIds = ids
+        .split(",")
+        .map(id => id.trim())
+        .filter(id => id !== "");
+
+    if (matchIds.length === 0) {
+        res.status(400).json({error: "No valid match IDs provided"});
+        return;
+    }
+
+    try {
+        const matchDetails = await getMatchDetails(matchIds);
+        res.json(matchDetails);
+
+    } catch (error) {
+        console.error(error);
+
+        if (error instanceof RiotApiError) {
+            if (error.status === 404) {
+                res.status(404).json({
+                    error: "PLAYER_NOT_FOUND",
+                    message: "Player not found."
+                });
+                return;
+            }
+
+            if (error.status === 429) {
+                res.status(429).json({
+                    error: "RATE_LIMITED",
+                    message: "Too many requests."
+                });
+                return;
+            }
+
+            res.status(502).json({
+                error: "RIOT_API_ERROR",
+                message: "Riot API is currently unavailable."
+            });
+            return;
+        }
 
         res.status(500).json({
             error: "Internal server error"

@@ -232,6 +232,7 @@ async function getLastGameData(id: string) {
     );
 
     return {
+            matchID: lastGame.metadata.matchId,
             gameDuration: lastGame.info.gameDuration,
             queueId: lastGame.info.queueId,
 
