@@ -154,8 +154,10 @@ export async function getMatchDetails(matchIds: string[]){
 
     for (const match of matches) {
         const timeline = await getMatchTimeline(match.metadata.matchId);
+        const goldTimeline = [];
         const players = [];
         const kills = [];
+
 
         for (const frame of timeline.info.frames) {
             for (const event of frame.events) {
@@ -187,6 +189,30 @@ export async function getMatchDetails(matchIds: string[]){
                     }
                 });
             }
+
+            const framePlayers = [];
+
+            for (const participantFrame of Object.values(frame.participantFrames)) {
+
+                const participant = match.info.participants.find(
+                    participant =>
+                        participant.participantId === participantFrame.participantId
+                );
+
+                if (!participant) {
+                    continue;
+                }
+
+                framePlayers.push({
+                    puuid: participant.puuid,
+                    totalGold: participantFrame.totalGold
+                });
+            }
+
+            goldTimeline.push({
+                time: frame.timestamp,
+                players: framePlayers
+            });
         }
 
         for (const participant of match.info.participants) {
@@ -252,7 +278,8 @@ export async function getMatchDetails(matchIds: string[]){
         matchDetails.push({
             matchId: match.metadata.matchId,
             players,
-            kills
+            kills,
+            goldTimeline
         });
 
     }
