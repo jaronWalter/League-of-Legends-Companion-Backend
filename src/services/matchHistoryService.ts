@@ -210,7 +210,7 @@ export async function getMatchDetails(matchIds: string[]){
             }
 
             goldTimeline.push({
-                time: frame.timestamp,
+                time: frame.timestamp / 1000,
                 players: framePlayers
             });
         }
