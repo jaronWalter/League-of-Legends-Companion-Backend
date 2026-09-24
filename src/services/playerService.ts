@@ -231,8 +231,11 @@ async function getLastGameData(id: string) {
             })
     );
 
+    const gameDate = new Date(lastGame.info.gameCreation).toLocaleString("de-DE");
+
     return {
             matchID: lastGame.metadata.matchId,
+            gameDate: gameDate,
             gameDuration: lastGame.info.gameDuration,
             queueId: lastGame.info.queueId,
 

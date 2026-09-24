@@ -33,6 +33,8 @@ export async function getMatchHistory(matchIds: string[]) {
 
         const players: any[] = [];
 
+        const gameDate = new Date(match.info.gameCreation).toLocaleString("de-DE");
+
         for (const participant of match.info.participants) {
 
             /*
@@ -121,6 +123,7 @@ export async function getMatchHistory(matchIds: string[]) {
 
         matchHistory.push({
             matchId: match.metadata.matchId,
+            gameDate: gameDate,
             gameDuration: match.info.gameDuration,
             queueId: match.info.queueId,
 
