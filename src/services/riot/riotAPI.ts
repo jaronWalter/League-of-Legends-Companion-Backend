@@ -158,6 +158,7 @@ export async function getAccountByRiotId(
     });
 
     if (!response.ok) {
+        console.log("ACCOUNT API STATUS:", response.status);
         throw new RiotApiError(
             response.status,
             `Riot API error: ${response.status}`
