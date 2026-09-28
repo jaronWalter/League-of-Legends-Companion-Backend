@@ -1,5 +1,5 @@
-import {getAccountByRiotId, getMatchesByMatchIds, getMatchIdsByPuuid, getRanksByPuuid, getMatchTimeline} from "./riot/riotAPI.js";
-
+import {getAccountByRiotId, getMatchIdsByPuuid, getRanksByPuuid, getMatchTimeline} from "./riot/riotAPI.js";
+import {getMatches} from "./riotService.js";
 import {getChampion, ensureChampionsLoaded} from "./championService.js";
 import {ensureItemsLoaded, getItem} from "./itemService";
 
@@ -25,7 +25,7 @@ export async function getMatchHistory(matchIds: string[]) {
     await ensureChampionsLoaded();
     await ensureItemsLoaded();
 
-    const matches = await getMatchesByMatchIds(matchIds);
+    const matches = await getMatches(matchIds);
 
     const matchHistory: any[] = [];
 
@@ -152,7 +152,7 @@ function normalizePosition(position: string | undefined) {
 }
 
 export async function getMatchDetails(matchIds: string[]){
-    const matches = await getMatchesByMatchIds(matchIds);
+    const matches = await getMatches(matchIds);
     const matchDetails = [];
 
     for (const match of matches) {
