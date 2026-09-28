@@ -1,9 +1,5 @@
-import {
-    getAccountByRiotId,
-    getCurrentGameByPuuid,
-    getRanksByPuuid
-} from "./riot/riotAPI.js";
-import {getLastMatchByPuuid} from "./riotService"
+import {getCurrentGameByPuuid, getRanksByPuuid} from "./riot/riotAPI.js";
+import {getLastMatchByPuuid, getAccountByRiotId} from "./riotService"
 import {getChampion, ensureChampionsLoaded} from "./championService.js";
 import { determinePositions } from "./positionService.js";
 

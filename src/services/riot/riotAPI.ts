@@ -124,7 +124,7 @@ interface RiotTimelineFrame {
     events: RiotTimelineEvent[];
 }
 
-interface RiotMatchTimeline {
+export interface RiotMatchTimeline {
     metadata: {
         dataVersion: string;
         matchId: string;
@@ -132,6 +132,10 @@ interface RiotMatchTimeline {
     };
     info: {
         frameInterval: number;
+        participants: {
+            participantId: number;
+            puuid: string;
+        }[];
         frames: RiotTimelineFrame[];
     };
 }

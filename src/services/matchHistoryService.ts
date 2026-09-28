@@ -1,5 +1,5 @@
-import {getAccountByRiotId, getMatchIdsByPuuid, getRanksByPuuid, getMatchTimeline} from "./riot/riotAPI.js";
-import {getMatches} from "./riotService.js";
+import {getMatchIdsByPuuid, getRanksByPuuid} from "./riot/riotAPI.js";
+import {getMatches, getTimeline, getAccountByRiotId} from "./riotService.js";
 import {getChampion, ensureChampionsLoaded} from "./championService.js";
 import {ensureItemsLoaded, getItem} from "./itemService";
 
@@ -126,7 +126,6 @@ export async function getMatchHistory(matchIds: string[]) {
             gameDate: gameDate,
             gameDuration: match.info.gameDuration,
             queueId: match.info.queueId,
-
             players
         });
     }
@@ -151,72 +150,13 @@ function normalizePosition(position: string | undefined) {
     return position ?? "unknown";
 }
 
-export async function getMatchDetails(matchIds: string[]){
+export async function getMatchDetails(matchIds: string[]) {
     const matches = await getMatches(matchIds);
     const matchDetails = [];
 
     for (const match of matches) {
-        const timeline = await getMatchTimeline(match.metadata.matchId);
-        const goldTimeline = [];
+        const timeline = await getTimeline(match.metadata.matchId);
         const players = [];
-        const kills = [];
-
-
-        for (const frame of timeline.info.frames) {
-            for (const event of frame.events) {
-                if (event.type !== "CHAMPION_KILL") {
-                    continue;
-                }
-
-                const killer = match.info.participants.find(
-                    participant => participant.participantId === event.killerId
-                );
-
-                const victim = match.info.participants.find(
-                    participant => participant.participantId === event.victimId
-                );
-
-                if (!killer || !victim || !event.position) {
-                    continue;
-                }
-
-                const time = event.timestamp / 1000;
-
-                kills.push({
-                    time,
-                    killerPuuid: killer.puuid,
-                    victimPuuid: victim.puuid,
-                    position: {
-                        x: event.position.x,
-                        y: event.position.y
-                    }
-                });
-            }
-
-            const framePlayers = [];
-
-            for (const participantFrame of Object.values(frame.participantFrames)) {
-
-                const participant = match.info.participants.find(
-                    participant =>
-                        participant.participantId === participantFrame.participantId
-                );
-
-                if (!participant) {
-                    continue;
-                }
-
-                framePlayers.push({
-                    puuid: participant.puuid,
-                    totalGold: participantFrame.totalGold
-                });
-            }
-
-            goldTimeline.push({
-                time: frame.timestamp / 1000,
-                players: framePlayers
-            });
-        }
 
         for (const participant of match.info.participants) {
             const ranks = await getRanksByPuuid(participant.puuid);
@@ -252,7 +192,9 @@ export async function getMatchDetails(matchIds: string[]){
                         : 0,
 
                     soloWinrate: solo
-                        ? Math.round((solo.wins / (solo.wins + solo.losses)) * 100)
+                        ? Math.round(
+                            (solo.wins / (solo.wins + solo.losses)) * 100
+                        )
                         : 0,
 
                     flex: flex
@@ -272,7 +214,9 @@ export async function getMatchDetails(matchIds: string[]){
                         : 0,
 
                     flexWinrate: flex
-                        ? Math.round((flex.wins / (flex.wins + flex.losses)) * 100)
+                        ? Math.round(
+                            (flex.wins / (flex.wins + flex.losses)) * 100
+                        )
                         : 0
                 }
             });
@@ -281,10 +225,10 @@ export async function getMatchDetails(matchIds: string[]){
         matchDetails.push({
             matchId: match.metadata.matchId,
             players,
-            kills,
-            goldTimeline
+            kills: timeline.kills,
+            goldTimeline: timeline.goldTimeline
         });
-
     }
+
     return matchDetails;
 }
