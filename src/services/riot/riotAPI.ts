@@ -75,7 +75,7 @@ interface RiotMatchParticipant {
     item6: number;
 }
 
-interface RiotMatch {
+export interface RiotMatch {
     metadata: {
         matchId: string;
         participants: string[];
@@ -124,7 +124,7 @@ interface RiotTimelineFrame {
     events: RiotTimelineEvent[];
 }
 
-interface RiotMatchTimeline {
+export interface RiotMatchTimeline {
     metadata: {
         dataVersion: string;
         matchId: string;
@@ -132,6 +132,10 @@ interface RiotMatchTimeline {
     };
     info: {
         frameInterval: number;
+        participants: {
+            participantId: number;
+            puuid: string;
+        }[];
         frames: RiotTimelineFrame[];
     };
 }
@@ -251,36 +255,6 @@ export async function getMatchIdsByPuuid(
     }
 
     return response.json() as Promise<string[]>;
-}
-
-
-// -------------------------
-// Last Match
-// -------------------------
-
-export async function getLastMatchByPuuid(
-    puuid: string
-): Promise<RiotMatch> {
-
-    const game = await getMatchIdsByPuuid(puuid, 0, 1);
-
-    const url =
-        `https://europe.api.riotgames.com/lol/match/v5/matches/${encodeURIComponent(game[0])}`;
-
-    const response = await fetch(url, {
-        headers: {
-            "X-Riot-Token": riotToken
-        }
-    });
-
-    if (!response.ok) {
-        throw new RiotApiError(
-            response.status,
-            `Riot API error: ${response.status}`
-        );
-    }
-
-    return response.json() as Promise<RiotMatch>;
 }
 
 
