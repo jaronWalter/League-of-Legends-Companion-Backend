@@ -126,6 +126,7 @@ export async function getMatchHistory(matchIds: string[]) {
             gameDate: gameDate,
             gameDuration: match.info.gameDuration,
             queueId: match.info.queueId,
+            patch: match.info.gameVersion.split(".").slice(0, 2).join("."),
             players
         });
     }

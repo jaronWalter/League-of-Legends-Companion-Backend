@@ -86,6 +86,7 @@ export interface RiotMatch {
         gameDuration: number;
         gameMode: string;
         gameType: string;
+        gameVersion: string;
         queueId: number;
         participants: RiotMatchParticipant[];
     };

@@ -234,6 +234,7 @@ async function getLastGameData(id: string) {
             gameDate: gameDate,
             gameDuration: lastGame.info.gameDuration,
             queueId: lastGame.info.queueId,
+            patch: lastGame.info.gameVersion.split(".").slice(0, 2).join("."),
 
             player: {
                 name: player.riotIdGameName,
