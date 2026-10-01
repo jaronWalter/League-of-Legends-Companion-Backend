@@ -4,6 +4,7 @@ import {getChampion, ensureChampionsLoaded} from "./championService.js";
 import {ensureItemsLoaded, getItem} from "./itemService";
 
 
+
 export async function getMatchIds(gameName: string, tagLine: string, puuid: string) {
     let id: string;
 
@@ -35,6 +36,8 @@ export async function getMatchHistory(matchIds: string[]) {
 
         const gameDate = new Date(match.info.gameCreation).toLocaleString("de-DE");
 
+        const isArena = match.info.queueId === 1750 || 1740;
+
         for (const participant of match.info.participants) {
 
             /*
@@ -60,9 +63,12 @@ export async function getMatchHistory(matchIds: string[]) {
             players.push({
                 name: participant.riotIdGameName,
                 tagLine: participant.riotIdTagline,
+                summonerLevel: participant.summonerLevel,
                 champion: getChampion(participant.championId),
                 role: normalizePosition(participant.teamPosition),
-                team: participant.teamId,
+                team: isArena
+                    ? participant.playerSubteamId ?? participant.teamId
+                    : participant.teamId,
                 result: participant.win ? "win" : "loss",
                 kills: participant.kills,
                 deaths: participant.deaths,

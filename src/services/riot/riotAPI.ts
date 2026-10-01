@@ -52,6 +52,7 @@ interface RiotMatchParticipant {
     puuid: string;
     riotIdGameName?: string;
     riotIdTagline?: string;
+    summonerLevel: number
     participantId: number;
     teamPosition?: string;
     championId: number;

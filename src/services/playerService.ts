@@ -131,7 +131,7 @@ export async function getPlayerData(gameName: string, tagLine: string, puuid: st
 
 async function getLastGameData(id: string) {
     const lastGame = await getLastMatchByPuuid(id);
-    const isArena = lastGame.info.queueId === 1750 || 1740;
+    const isArena = lastGame.info.queueId === 1750 || lastGame.info.queueId === 1740;
     const player = lastGame.info.participants.find(
         (participant: any) => participant.puuid === id
     );
@@ -161,10 +161,10 @@ async function getLastGameData(id: string) {
                 const kda = participant.deaths === 0
                     ? participant.kills + participant.assists
                     : (participant.kills + participant.assists) / participant.deaths;
-
                 return {
                         name: participant.riotIdGameName,
                         tagLine: participant.riotIdTagline,
+                        summonerLevel: participant.summonerLevel,
                         champion: getChampion(participant.championId),
                         role: normalizePosition(participant.teamPosition),
                         team: isArena
@@ -241,6 +241,7 @@ async function getLastGameData(id: string) {
             player: {
                 name: player.riotIdGameName,
                 tagLine: player.riotIdTagline,
+                summonerLevel: player.summonerLevel,
                 champion: getChampion(player.championId),
                 role: normalizePosition(player.teamPosition) ?? "unknown",
                 team: isArena
