@@ -233,7 +233,9 @@ export async function getMatchDetails(matchIds: string[]) {
             matchId: match.metadata.matchId,
             players,
             kills: timeline.kills,
-            goldTimeline: timeline.goldTimeline
+            goldTimeline: timeline.goldTimeline,
+            structureKills: timeline.structureKills,
+            neutralObjectives: timeline.neutralObjectives
         });
     }
 

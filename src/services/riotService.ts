@@ -59,10 +59,62 @@ export async function getTimeline(matchId: string) {
 
     const goldTimeline = [];
     const kills = [];
+    const structureKills = [];
+    const neutralObjectives = [];
 
     for (const frame of timeline.info.frames) {
 
         for (const event of frame.events) {
+            if (event.type === "BUILDING_KILL") {
+                const killerPuuid = event.killerId
+                    ? timeline.info.participants.find(
+                        participant =>
+                            participant.participantId === event.killerId
+                    )?.puuid
+                    : undefined;
+
+                structureKills.push({
+                    time: event.timestamp / 1000,
+                    type: event.buildingType,
+                    towerType: event.towerType,
+                    laneType: event.laneType,
+                    teamId: event.teamId,
+                    killerPuuid,
+                    position: event.position
+                });
+            }
+
+
+            if (event.type === "ELITE_MONSTER_KILL") {
+                const killerPuuid = event.killerId
+                    ? timeline.info.participants.find(
+                        participant =>
+                            participant.participantId === event.killerId
+                    )?.puuid
+                    : undefined;
+
+                const allowedMonsters = [
+                    "DRAGON",
+                    "RIFTHERALD",
+                    "BARON_NASHOR",
+                    "HORDE"
+                ];
+
+                if (!allowedMonsters.includes(event.monsterType ?? "")) {
+                    continue;
+                }
+
+                neutralObjectives.push({
+                    time: event.timestamp / 1000,
+                    type: event.monsterType,
+                    subtype: event.monsterSubType,
+                    killerPuuid,
+                    position: event.position
+                });
+            }
+
+
+
             if (event.type !== "CHAMPION_KILL") {
                 continue;
             }
@@ -121,7 +173,9 @@ export async function getTimeline(matchId: string) {
 
     const processedTimeline = {
         kills,
-        goldTimeline
+        goldTimeline,
+        structureKills,
+        neutralObjectives,
     };
 
     await saveTimeline(

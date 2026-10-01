@@ -116,6 +116,15 @@ interface RiotTimelineEvent {
     killerId?: number;
     victimId?: number;
     assistingParticipantIds?: number[];
+
+    buildingType?: string;
+    towerType?: string;
+    laneType?: string;
+    teamId?: number;
+
+    monsterType?: string;
+    monsterSubType?: string;
+
     position?: {
         x: number;
         y: number;
