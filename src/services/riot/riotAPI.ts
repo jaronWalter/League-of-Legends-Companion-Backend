@@ -56,6 +56,8 @@ interface RiotMatchParticipant {
     teamPosition?: string;
     championId: number;
     teamId: number;
+    playerSubteamId?: number;
+    subteamPlacement: string;
     kills: number;
     deaths: number;
     assists: number;

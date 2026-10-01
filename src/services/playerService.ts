@@ -131,6 +131,7 @@ export async function getPlayerData(gameName: string, tagLine: string, puuid: st
 
 async function getLastGameData(id: string) {
     const lastGame = await getLastMatchByPuuid(id);
+    const isArena = lastGame.info.queueId === 1750 || 1740;
     const player = lastGame.info.participants.find(
         (participant: any) => participant.puuid === id
     );
@@ -166,7 +167,9 @@ async function getLastGameData(id: string) {
                         tagLine: participant.riotIdTagline,
                         champion: getChampion(participant.championId),
                         role: normalizePosition(participant.teamPosition),
-                        team: participant.teamId,
+                        team: isArena
+                            ? participant.playerSubteamId
+                            : participant.teamId,
                         result: participant.win ? "win" : "loss",
                         kills: participant.kills,
                         deaths: participant.deaths,
@@ -228,7 +231,6 @@ async function getLastGameData(id: string) {
     );
 
     const gameDate = new Date(lastGame.info.gameCreation).toLocaleString("de-DE");
-
     return {
             matchID: lastGame.metadata.matchId,
             gameDate: gameDate,
@@ -241,7 +243,9 @@ async function getLastGameData(id: string) {
                 tagLine: player.riotIdTagline,
                 champion: getChampion(player.championId),
                 role: normalizePosition(player.teamPosition) ?? "unknown",
-                team: player.teamId,
+                team: isArena
+                    ? player.playerSubteamId
+                    : player.teamId,
                 result: player.win ? "win" : "loss",
                 kills: player.kills,
                 deaths: player.deaths,
