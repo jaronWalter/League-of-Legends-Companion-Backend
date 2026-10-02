@@ -36,7 +36,7 @@ export async function getMatchHistory(matchIds: string[]) {
 
         const gameDate = new Date(match.info.gameCreation).toLocaleString("de-DE");
 
-        const isArena = match.info.queueId === 1750 || 1740;
+        const isArena = match.info.queueId === 1750 || match.info.queueId === 1740;
 
         for (const participant of match.info.participants) {
 
