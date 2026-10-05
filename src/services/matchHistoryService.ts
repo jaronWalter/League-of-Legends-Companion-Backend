@@ -2,6 +2,7 @@ import {getMatchIdsByPuuid, getRanksByPuuid} from "./riot/riotAPI.js";
 import {getMatches, getTimeline, getAccountByRiotId} from "./riotService.js";
 import {getChampion, ensureChampionsLoaded} from "./championService.js";
 import {ensureItemsLoaded, getItem} from "./itemService";
+import {ensureRunesLoaded, getRune} from "./runeService";
 
 
 
@@ -25,6 +26,7 @@ export async function getMatchIds(gameName: string, tagLine: string, puuid: stri
 export async function getMatchHistory(matchIds: string[]) {
     await ensureChampionsLoaded();
     await ensureItemsLoaded();
+    await ensureRunesLoaded();
 
     const matches = await getMatches(matchIds);
 
@@ -88,6 +90,19 @@ export async function getMatchHistory(matchIds: string[]) {
                     getItem(participant.item5),
                     getItem(participant.item6),
                 ],
+                runes: {
+                    primary: participant.perks.styles[0]?.selections
+                        .map(selection => getRune(selection.perk))
+                        .filter(Boolean),
+
+                    secondary: participant.perks.styles[1]?.selections
+                        .map(selection => getRune(selection.perk))
+                        .filter(Boolean)
+                },
+                summonerSpells: {
+                    spell1: participant.summoner1Id,
+                    spell2: participant.summoner2Id
+                },
 
                 /*
                 ranks: {

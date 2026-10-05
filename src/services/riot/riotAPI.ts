@@ -28,6 +28,20 @@ interface RiotParticipant {
     teamId: number;
     teamPosition?: string;
     summonerId?: string;
+    item0: number;
+    item1: number;
+    item2: number;
+    item3: number;
+    item4: number;
+    item5: number;
+    item6: number;
+    spell1Id: number;
+    spell2Id: number;
+    perks?: {
+        perkIds: number[];
+        perkStyle: number;
+        perkSubStyle: number;
+    };
 }
 
 interface RiotCurrentGame {
@@ -76,6 +90,25 @@ interface RiotMatchParticipant {
     item4: number;
     item5: number;
     item6: number;
+    summoner1Id: number;
+    summoner2Id: number;
+    perks: {
+        styles: {
+            description: string;
+            style: number;
+            selections: {
+                perk: number;
+                var1: number;
+                var2: number;
+                var3: number;
+            }[];
+        }[];
+        statPerks: {
+            defense: number;
+            flex: number;
+            offense: number;
+        };
+    };
 }
 
 export interface RiotMatch {

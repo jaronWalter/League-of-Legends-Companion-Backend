@@ -2,9 +2,13 @@ import {getCurrentGameByPuuid, getRanksByPuuid} from "./riot/riotAPI.js";
 import {getLastMatchByPuuid, getAccountByRiotId} from "./riotService"
 import {getChampion, ensureChampionsLoaded} from "./championService.js";
 import { determinePositions } from "./positionService.js";
+import {ensureRunesLoaded, getRune} from "./runeService.js";
+import {ensureItemsLoaded, getItem} from "./itemService";
 
 export async function getPlayerData(gameName: string, tagLine: string, puuid: string) {
     await ensureChampionsLoaded();
+    await ensureRunesLoaded()
+    await ensureItemsLoaded()
     let id: string;
     if (puuid !== "none") {
         id = puuid;
@@ -58,6 +62,17 @@ export async function getPlayerData(gameName: string, tagLine: string, puuid: st
                 (rank: any) => rank.queueType === "RANKED_FLEX_SR"
             );
             const riotId = participant.riotId?.split("#");
+            const perkIds = participant.perks?.perkIds ?? [];
+
+            const primaryRunes = perkIds
+                .slice(0, 4)
+                .map((runeId: number) => getRune(runeId))
+                .filter(Boolean);
+
+            const secondaryRunes = perkIds
+                .slice(4, 6)
+                .map((runeId: number) => getRune(runeId))
+                .filter(Boolean);
 
             return {
                 name: participant.puuid
@@ -69,6 +84,14 @@ export async function getPlayerData(gameName: string, tagLine: string, puuid: st
                 champion: champ,
                 position: playerPosition?.position ?? "unknown",
                 team: participant.teamId,
+                runes: {
+                    primary: primaryRunes,
+                    secondary: secondaryRunes
+                },
+                summonerSpells: {
+                    spell1: participant.spell1Id,
+                    spell2: participant.spell2Id
+                },
                 ranks: {
                     solo: solo
                         ? `${solo.tier} ${solo.rank}`
@@ -170,6 +193,38 @@ async function getLastGameData(id: string) {
                         team: isArena
                             ? participant.playerSubteamId
                             : participant.teamId,
+                        items: [
+                            getItem(participant.item0),
+                            getItem(participant.item1),
+                            getItem(participant.item2),
+                            getItem(participant.item3),
+                            getItem(participant.item4),
+                            getItem(participant.item5),
+                            getItem(participant.item6),
+                        ],
+                        runes: {
+                            primary: participant.perks.styles[0]?.selections
+                                .map((selection: {
+                                    perk: number;
+                                    var1: number;
+                                    var2: number;
+                                    var3: number;
+                                }) => getRune(selection.perk))
+                                .filter(Boolean),
+
+                            secondary: participant.perks.styles[1]?.selections
+                                .map((selection: {
+                                    perk: number;
+                                    var1: number;
+                                    var2: number;
+                                    var3: number;
+                                }) => getRune(selection.perk))
+                                .filter(Boolean)
+                        },
+                        summonerSpells: {
+                            spell1: participant.summoner1Id,
+                            spell2: participant.summoner2Id
+                        },
                         result: participant.win ? "win" : "loss",
                         kills: participant.kills,
                         deaths: participant.deaths,
@@ -247,6 +302,28 @@ async function getLastGameData(id: string) {
                 team: isArena
                     ? player.playerSubteamId
                     : player.teamId,
+                items: [
+                    getItem(player.item0),
+                    getItem(player.item1),
+                    getItem(player.item2),
+                    getItem(player.item3),
+                    getItem(player.item4),
+                    getItem(player.item5),
+                    getItem(player.item6),
+                ],
+                runes: {
+                    primary: player.perks.styles[0]?.selections
+                        .map(selection => getRune(selection.perk))
+                        .filter(Boolean),
+
+                    secondary: player.perks.styles[1]?.selections
+                        .map(selection => getRune(selection.perk))
+                        .filter(Boolean)
+                },
+                summonerSpells: {
+                    spell1: player.summoner1Id,
+                    spell2: player.summoner2Id
+                },
                 result: player.win ? "win" : "loss",
                 kills: player.kills,
                 deaths: player.deaths,
