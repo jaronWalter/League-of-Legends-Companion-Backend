@@ -27,6 +27,10 @@ export async function getPlayerData(gameName: string, tagLine: string, puuid: st
         };
     }
 
+    const isArena =
+        currentGame.gameQueueConfigId === 1750 ||
+        currentGame.gameQueueConfigId === 1740;
+
     console.log(JSON.stringify(currentGame, null, 2));
 
     const team100 = currentGame.participants.filter(
@@ -50,7 +54,7 @@ export async function getPlayerData(gameName: string, tagLine: string, puuid: st
                 (entry: any) => entry.participant === participant
             );
             const champ = getChampion(participant.championId)
-            const ranks = participant.puuid
+            const ranks = !isArena && participant.puuid
                 ? await getRanksByPuuid(participant.puuid)
                 : [];
 
@@ -171,15 +175,14 @@ async function getLastGameData(id: string) {
     );
     const players = await Promise.all(
         lastGame.info.participants.map(async (participant: any) => {
-                const ranks = await getRanksByPuuid(participant.puuid);
-
-                const solo = ranks.find(
-                    (rank: any) => rank.queueType === "RANKED_SOLO_5x5"
-                );
-
-                const flex = ranks.find(
-                    (rank: any) => rank.queueType === "RANKED_FLEX_SR"
-                );
+            const ranks = !isArena
+            ? await getRanksByPuuid(participant.puuid)
+            : [];
+            const solo = ranks.find(
+                (rank: any) => rank.queueType === "RANKED_SOLO_5x5"
+            );
+            const flex = ranks.find((rank: any) => rank.queueType === "RANKED_FLEX_SR"
+            );
 
                 const kda = participant.deaths === 0
                     ? participant.kills + participant.assists
@@ -235,8 +238,7 @@ async function getLastGameData(id: string) {
                         creepScore: participant.neutralMinionsKilled + participant.totalMinionsKilled,
                         visionScore: participant.visionScore,
                         totalChampionDamage: participant.totalDamageDealtToChampions,
-
-                        ranks: {
+                        ranks: isArena ? null :{
                             solo: solo
                                 ? `${solo.tier} ${solo.rank}`
                                 : "not placed",
