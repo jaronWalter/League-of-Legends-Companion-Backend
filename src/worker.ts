@@ -12,7 +12,8 @@ app.use(cors({
     origin: [
         "https://projectscout.framer.website",
         "https://chocolate-illuminate-848477.framer.app",
-        "https://projectscout.lol"
+        "https://projectscout.lol",
+        "https://www.projectscout.lol"
     ]
 }));
 
