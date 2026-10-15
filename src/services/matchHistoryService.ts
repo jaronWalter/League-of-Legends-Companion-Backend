@@ -3,6 +3,7 @@ import {getMatches, getTimeline, getAccountByRiotId} from "./riotService.js";
 import {getChampion, ensureChampionsLoaded} from "./championService.js";
 import {ensureItemsLoaded, getItem} from "./itemService";
 import {ensureRunesLoaded, getRune} from "./runeService";
+import {ensureProfileIconsLoaded, getProfileIcon} from "./profileIconService.js";
 
 
 
@@ -27,6 +28,7 @@ export async function getMatchHistory(matchIds: string[]) {
     await ensureChampionsLoaded();
     await ensureItemsLoaded();
     await ensureRunesLoaded();
+    ensureProfileIconsLoaded()
 
     const matches = await getMatches(matchIds);
 
@@ -66,6 +68,7 @@ export async function getMatchHistory(matchIds: string[]) {
                 name: participant.riotIdGameName,
                 tagLine: participant.riotIdTagline,
                 summonerLevel: participant.summonerLevel,
+                summonerIcon: getProfileIcon(participant.profileIcon),
                 champion: getChampion(participant.championId),
                 role: normalizePosition(participant.teamPosition),
                 team: isArena

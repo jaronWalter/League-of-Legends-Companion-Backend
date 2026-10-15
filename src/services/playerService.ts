@@ -4,11 +4,13 @@ import {getChampion, ensureChampionsLoaded} from "./championService.js";
 import { determinePositions } from "./positionService.js";
 import {ensureRunesLoaded, getRune} from "./runeService.js";
 import {ensureItemsLoaded, getItem} from "./itemService";
+import {ensureProfileIconsLoaded, getProfileIcon} from "./profileIconService.js";
 
 export async function getPlayerData(gameName: string, tagLine: string, puuid: string) {
     await ensureChampionsLoaded();
     await ensureRunesLoaded()
     await ensureItemsLoaded()
+    await ensureProfileIconsLoaded();
     let id: string;
     if (puuid !== "none") {
         id = puuid;
@@ -30,6 +32,8 @@ export async function getPlayerData(gameName: string, tagLine: string, puuid: st
     const isArena =
         currentGame.gameQueueConfigId === 1750 ||
         currentGame.gameQueueConfigId === 1740;
+
+
 
     console.log(JSON.stringify(currentGame, null, 2));
 
@@ -85,6 +89,7 @@ export async function getPlayerData(gameName: string, tagLine: string, puuid: st
                 tag: participant.puuid
                     ? riotId?.[1] ?? "Unknown"
                     : "Unknown",
+                summonerIcon: getProfileIcon(participant.profileIconId),
                 champion: champ,
                 position: playerPosition?.position ?? "unknown",
                 team: participant.teamId,
@@ -191,6 +196,7 @@ async function getLastGameData(id: string) {
                         name: participant.riotIdGameName,
                         tagLine: participant.riotIdTagline,
                         summonerLevel: participant.summonerLevel,
+                        summonerIcon: getProfileIcon(participant.profileIcon),
                         champion: getChampion(participant.championId),
                         role: normalizePosition(participant.teamPosition),
                         team: isArena
@@ -299,6 +305,7 @@ async function getLastGameData(id: string) {
                 name: player.riotIdGameName,
                 tagLine: player.riotIdTagline,
                 summonerLevel: player.summonerLevel,
+                summonerIcon: getProfileIcon(player.profileIcon),
                 champion: getChampion(player.championId),
                 role: normalizePosition(player.teamPosition) ?? "unknown",
                 team: isArena
