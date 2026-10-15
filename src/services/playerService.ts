@@ -178,6 +178,32 @@ async function getLastGameData(id: string) {
     const playerFlex = playerRanks.find(
         (rank: any) => rank.queueType === "RANKED_FLEX_SR"
     );
+
+    const teamKills = new Map<number, number>();
+
+    for (const participant of lastGame.info.participants) {
+        const teamId = isArena
+            ? participant.playerSubteamId ?? participant.teamId
+            : participant.teamId;
+
+        teamKills.set(
+            teamId,
+            (teamKills.get(teamId) ?? 0) + participant.kills
+        );
+    }
+
+    const playerTeamId = isArena
+        ? player.playerSubteamId ?? player.teamId
+        : player.teamId;
+
+    const playerTotalTeamKills = teamKills.get(playerTeamId) ?? 0;
+
+    const playerKillParticipation = playerTotalTeamKills > 0
+        ? Math.round(
+            ((player.kills + player.assists) / playerTotalTeamKills) * 100
+        )
+        : 0;
+
     const players = await Promise.all(
         lastGame.info.participants.map(async (participant: any) => {
             const ranks = !isArena
@@ -189,9 +215,21 @@ async function getLastGameData(id: string) {
             const flex = ranks.find((rank: any) => rank.queueType === "RANKED_FLEX_SR"
             );
 
-                const kda = participant.deaths === 0
-                    ? participant.kills + participant.assists
-                    : (participant.kills + participant.assists) / participant.deaths;
+            const kda = participant.deaths === 0
+                ? participant.kills + participant.assists
+                : (participant.kills + participant.assists) / participant.deaths;
+
+            const teamId = isArena
+                ? participant.playerSubteamId ?? participant.teamId
+                : participant.teamId;
+
+            const totalTeamKills = teamKills.get(teamId) ?? 0;
+
+            const killParticipation = totalTeamKills > 0
+                ? Math.round(
+                    ((participant.kills + participant.assists) / totalTeamKills) * 100
+                )
+                : 0;
                 return {
                         name: participant.riotIdGameName,
                         tagLine: participant.riotIdTagline,
@@ -240,6 +278,7 @@ async function getLastGameData(id: string) {
                         assists: participant.assists,
                         level: participant.champLevel,
                         kda: Math.round(kda * 100) / 100,
+                        killParticipationPercent: killParticipation,
                         totalGold: participant.goldEarned,
                         creepScore: participant.neutralMinionsKilled + participant.totalMinionsKilled,
                         visionScore: participant.visionScore,
@@ -339,6 +378,7 @@ async function getLastGameData(id: string) {
                 assists: player.assists,
                 level: player.champLevel,
                 kda: Math.round((player.deaths === 0 ? player.kills + player.assists : (player.kills + player.assists) / player.deaths) * 100) / 100,
+                killParticipationPercent: playerKillParticipation,
                 totalGold: player.goldEarned,
                 creepScore: player.neutralMinionsKilled + player.totalMinionsKilled,
                 visionScore: player.visionScore,

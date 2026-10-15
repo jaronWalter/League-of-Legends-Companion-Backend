@@ -28,7 +28,7 @@ export async function getMatchHistory(matchIds: string[]) {
     await ensureChampionsLoaded();
     await ensureItemsLoaded();
     await ensureRunesLoaded();
-    ensureProfileIconsLoaded()
+    await ensureProfileIconsLoaded()
 
     const matches = await getMatches(matchIds);
 
@@ -41,6 +41,19 @@ export async function getMatchHistory(matchIds: string[]) {
         const gameDate = new Date(match.info.gameCreation).toLocaleString("de-DE");
 
         const isArena = match.info.queueId === 1750 || match.info.queueId === 1740;
+
+        const teamKills = new Map<number, number>();
+
+        for (const participant of match.info.participants) {
+            const teamId = isArena
+                ? participant.playerSubteamId ?? participant.teamId
+                : participant.teamId;
+
+            teamKills.set(
+                teamId,
+                (teamKills.get(teamId) ?? 0) + participant.kills
+            );
+        }
 
         for (const participant of match.info.participants) {
 
@@ -64,6 +77,18 @@ export async function getMatchHistory(matchIds: string[]) {
                     : (participant.kills + participant.assists) /
                     participant.deaths;
 
+            const teamId = isArena
+                ? participant.playerSubteamId ?? participant.teamId
+                : participant.teamId;
+
+            const totalTeamKills = teamKills.get(teamId) ?? 0;
+
+            const killParticipation = totalTeamKills > 0
+                ? Math.round(
+                    ((participant.kills + participant.assists) / totalTeamKills) * 100
+                )
+                : 0;
+
             players.push({
                 name: participant.riotIdGameName,
                 tagLine: participant.riotIdTagline,
@@ -84,6 +109,7 @@ export async function getMatchHistory(matchIds: string[]) {
                 visionScore: participant.visionScore,
                 totalChampionDamage: participant.totalDamageDealtToChampions,
                 kda: Math.round(kda * 100) / 100,
+                killParticipationPercent: killParticipation,
                 items: [
                     getItem(participant.item0),
                     getItem(participant.item1),
