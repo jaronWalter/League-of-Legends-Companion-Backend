@@ -11,7 +11,8 @@ const app = express();
 app.use(cors({
     origin: [
         "https://projectscout.framer.website",
-        "https://chocolate-illuminate-848477.framer.app"
+        "https://chocolate-illuminate-848477.framer.app",
+        "https://projectscout.lol"
     ]
 }));
 
