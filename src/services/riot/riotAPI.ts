@@ -61,6 +61,18 @@ interface RiotLeagueEntry {
     leaguePoints: number;
     wins: number;
     losses: number;
+    hotStreak: boolean;
+    veteran: boolean;
+    freshBlood: boolean;
+    inactive: boolean;
+    miniSeries?: RiotMiniSeries | null;
+}
+
+interface RiotMiniSeries {
+    losses: number;
+    progress: string;
+    target: number;
+    wins: number;
 }
 
 interface RiotMatchParticipant {

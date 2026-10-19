@@ -5,6 +5,7 @@ import { determinePositions } from "./positionService.js";
 import {ensureRunesLoaded, getRune} from "./runeService.js";
 import {ensureItemsLoaded, getItem} from "./itemService";
 import {ensureProfileIconsLoaded, getProfileIcon} from "./profileIconService.js";
+import {getTotalRankLp} from "./rankUtils";
 
 export async function getPlayerData(gameName: string, tagLine: string, puuid: string) {
     await ensureChampionsLoaded();
@@ -110,6 +111,10 @@ export async function getPlayerData(gameName: string, tagLine: string, puuid: st
                         ? solo.leaguePoints
                         : 0,
 
+                    soloTotalLp: solo
+                        ? getTotalRankLp(solo.tier, solo.rank, solo.leaguePoints)
+                        : null,
+
                     soloWins: solo
                         ? solo.wins
                         : 0,
@@ -122,6 +127,15 @@ export async function getPlayerData(gameName: string, tagLine: string, puuid: st
                         ? Math.round((solo.wins / (solo.wins + solo.losses)) * 100)
                         : 0,
 
+                    soloDetails: solo ? {
+                        leagueId: solo.leagueId,
+                        hotStreak: solo.hotStreak,
+                        veteran: solo.veteran,
+                        freshBlood: solo.freshBlood,
+                        inactive: solo.inactive,
+                        miniSeries: solo.miniSeries ?? null
+                    } : null,
+
                     flex: flex
                         ? `${flex.tier} ${flex.rank}`
                         : "not placed",
@@ -129,6 +143,10 @@ export async function getPlayerData(gameName: string, tagLine: string, puuid: st
                     flexLp: flex
                         ? flex.leaguePoints
                         : 0,
+
+                    flexTotalLp: flex
+                        ? getTotalRankLp(flex.tier, flex.rank, flex.leaguePoints)
+                        : null,
 
                     flexWins: flex
                         ? flex.wins
@@ -140,7 +158,16 @@ export async function getPlayerData(gameName: string, tagLine: string, puuid: st
 
                     flexWinrate: flex
                         ? Math.round((flex.wins / (flex.wins + flex.losses)) * 100)
-                        : 0
+                        : 0,
+
+                    flexDetails: flex ? {
+                        leagueId: flex.leagueId,
+                        hotStreak: flex.hotStreak,
+                        veteran: flex.veteran,
+                        freshBlood: flex.freshBlood,
+                        inactive: flex.inactive,
+                        miniSeries: flex.miniSeries ?? null
+                    } : null
                 }
             };
         })
@@ -292,6 +319,10 @@ async function getLastGameData(id: string) {
                                 ? solo.leaguePoints
                                 : 0,
 
+                            soloTotalLp: solo
+                                ? getTotalRankLp(solo.tier, solo.rank, solo.leaguePoints)
+                                : null,
+
                             soloWins: solo
                                 ? solo.wins
                                 : 0,
@@ -306,6 +337,15 @@ async function getLastGameData(id: string) {
                                 )
                                 : 0,
 
+                            soloDetails: solo ? {
+                                leagueId: solo.leagueId,
+                                hotStreak: solo.hotStreak,
+                                veteran: solo.veteran,
+                                freshBlood: solo.freshBlood,
+                                inactive: solo.inactive,
+                                miniSeries: solo.miniSeries ?? null
+                            } : null,
+
                             flex: flex
                                 ? `${flex.tier} ${flex.rank}`
                                 : "not placed",
@@ -313,6 +353,10 @@ async function getLastGameData(id: string) {
                             flexLp: flex
                                 ? flex.leaguePoints
                                 : 0,
+
+                            flexTotalLp: flex
+                                ? getTotalRankLp(flex.tier, flex.rank, flex.leaguePoints)
+                                : null,
 
                             flexWins: flex
                                 ? flex.wins
@@ -326,7 +370,16 @@ async function getLastGameData(id: string) {
                                 ? Math.round(
                                     (flex.wins / (flex.wins + flex.losses)) * 100
                                 )
-                                : 0
+                                : 0,
+
+                            flexDetails: flex ? {
+                                leagueId: flex.leagueId,
+                                hotStreak: flex.hotStreak,
+                                veteran: flex.veteran,
+                                freshBlood: flex.freshBlood,
+                                inactive: flex.inactive,
+                                miniSeries: flex.miniSeries ?? null
+                            } : null
                         }
                 };
             })
@@ -393,6 +446,10 @@ async function getLastGameData(id: string) {
                         ? playerSolo.leaguePoints
                         : 0,
 
+                    soloTotalLp: playerSolo
+                        ? getTotalRankLp(playerSolo.tier, playerSolo.rank, playerSolo.leaguePoints)
+                        : null,
+
                     soloWins: playerSolo
                         ? playerSolo.wins
                         : 0,
@@ -405,6 +462,15 @@ async function getLastGameData(id: string) {
                         ? Math.round((playerSolo.wins / (playerSolo.wins + playerSolo.losses)) * 100)
                         : 0,
 
+                    soloDetails: playerSolo ? {
+                        leagueId: playerSolo.leagueId,
+                        hotStreak: playerSolo.hotStreak,
+                        veteran: playerSolo.veteran,
+                        freshBlood: playerSolo.freshBlood,
+                        inactive: playerSolo.inactive,
+                        miniSeries: playerSolo.miniSeries ?? null
+                    } : null,
+
                     flex: playerFlex
                         ? `${playerFlex.tier} ${playerFlex.rank}`
                         : "not placed",
@@ -412,6 +478,10 @@ async function getLastGameData(id: string) {
                     flexLp: playerFlex
                         ? playerFlex.leaguePoints
                         : 0,
+
+                    flexTotalLp: playerFlex
+                        ? getTotalRankLp(playerFlex.tier, playerFlex.rank, playerFlex.leaguePoints)
+                        : null,
 
                     flexWins: playerFlex
                         ? playerFlex.wins
@@ -423,7 +493,16 @@ async function getLastGameData(id: string) {
 
                     flexWinrate: playerFlex
                         ? Math.round((playerFlex.wins / (playerFlex.wins + playerFlex.losses)) * 100)
-                        : 0
+                        : 0,
+
+                    flexDetails: playerFlex ? {
+                        leagueId: playerFlex.leagueId,
+                        hotStreak: playerFlex.hotStreak,
+                        veteran: playerFlex.veteran,
+                        freshBlood: playerFlex.freshBlood,
+                        inactive: playerFlex.inactive,
+                        miniSeries: playerFlex.miniSeries ?? null
+                    } : null
                 }
 
             },
@@ -447,3 +526,6 @@ function normalizePosition(position: string | undefined) {
 
     return position ?? "unknown";
 }
+
+
+
