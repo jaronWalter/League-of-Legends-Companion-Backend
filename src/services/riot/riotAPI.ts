@@ -200,7 +200,14 @@ export interface RiotMatchTimeline {
     };
 }
 
-//
+interface RiotSummoner {
+    puuid: string;
+    profileIconId: number;
+    summonerLevel: number;
+    revisionDate: number;
+}
+
+///////////////////////////////////////////////////////
 
 export async function getAccountByRiotId(
     gameName: string,
@@ -286,6 +293,25 @@ export async function getRanksByPuuid(
     }
 
     return response.json() as Promise<RiotLeagueEntry[]>;
+}
+
+export async function getSummonerByPuuid(
+    puuid: string
+): Promise<RiotSummoner> {
+    const response = await fetch(
+        `https://euw1.api.riotgames.com/lol/summoner/v4/summoners/by-puuid/${encodeURIComponent(puuid)}`,
+        {
+            headers: {
+                "X-Riot-Token": riotToken
+            }
+        }
+    );
+
+    if (!response.ok) {
+        throw new RiotApiError(response.status, `Riot API error: ${response.status}`);
+    }
+
+    return await response.json() as RiotSummoner;
 }
 
 
