@@ -1,12 +1,12 @@
 import {
     getCurrentGameByPuuid,
-    getRanksByPuuid,
     getSummonerByPuuid
 } from "./riot/riotAPI.js";
 
 import {
     getLastMatchByPuuid,
-    getAccountByRiotId
+    getAccountByRiotId,
+    getRanksByPuuid
 } from "./riotService.js";
 
 import {

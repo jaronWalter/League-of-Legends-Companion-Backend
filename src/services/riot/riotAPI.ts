@@ -272,7 +272,7 @@ export async function getCurrentGameByPuuid(
 // Ranks
 // -------------------------
 
-export async function getRanksByPuuid(
+export async function fetchRanksByPuuid(
     puuid: string
 ): Promise<RiotLeagueEntry[]> {
 

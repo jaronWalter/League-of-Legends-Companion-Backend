@@ -1,6 +1,9 @@
-import {getMatchesByMatchIds, getMatchIdsByPuuid, getMatchTimeline,  getAccountByRiotId as getAccountByRiotIdFromRiot} from "./riot/riotAPI.js";
-import {getMatch, saveMatch, getTimelineData, saveTimeline, getPlayerByRiotId, savePlayer} from "./databaseService.js";
+import {getMatchesByMatchIds, getMatchIdsByPuuid, getMatchTimeline,  getAccountByRiotId as getAccountByRiotIdFromRiot, fetchRanksByPuuid}
+    from "./riot/riotAPI.js";
+import {getMatch, saveMatch, getTimelineData, saveTimeline, getPlayerByRiotId, savePlayer, saveRankSnapshot} from "./databaseService.js";
 import type { RiotMatch, RiotMatchTimeline } from "./riot/riotAPI.js";
+import { getTotalRankLp } from "./rankUtils.js";
+
 
 export async function getMatches(matchIds: string[]): Promise<RiotMatch[]> {
     const matchesById = new Map<string, RiotMatch>();
@@ -197,4 +200,39 @@ export async function getAccountByRiotId(gameName: string, tagLine: string) {
     await savePlayer(account.puuid, account.gameName, account.tagLine);
 
     return account;
+}
+
+export async function getRanksByPuuid(puuid: string) {
+    const ranks = await fetchRanksByPuuid(puuid);
+
+    const solo = ranks.find(
+        rank => rank.queueType === "RANKED_SOLO_5x5"
+    );
+
+    const flex = ranks.find(
+        rank => rank.queueType === "RANKED_FLEX_SR"
+    );
+
+    await saveRankSnapshot({
+        puuid,
+        timestamp: Math.floor(Date.now() / 1000),
+
+        soloTotalLp: solo
+            ? getTotalRankLp(
+                solo.tier,
+                solo.rank,
+                solo.leaguePoints
+            )
+            : null,
+
+        flexTotalLp: flex
+            ? getTotalRankLp(
+                flex.tier,
+                flex.rank,
+                flex.leaguePoints
+            )
+            : null
+    });
+
+    return ranks;
 }

@@ -123,3 +123,41 @@ export async function savePlayer(puuid: string, gameName: string, tagLine: strin
         )
         .run();
 }
+
+//rank caching
+
+export interface RankSnapshot {
+    puuid: string;
+    timestamp: number;
+    soloTotalLp: number | null;
+    flexTotalLp: number | null;
+}
+
+export async function saveRankSnapshot(
+    snapshot: RankSnapshot
+): Promise<void> {
+    await env.DB.prepare(`
+        INSERT INTO rank_history (
+            puuid,
+            timestamp,
+            solo_total_lp,
+            flex_total_lp
+        )
+        SELECT ?, ?, ?, ?
+            WHERE NOT EXISTS (
+            SELECT 1
+            FROM rank_history
+            WHERE puuid = ?
+              AND timestamp >= ?
+        )
+    `)
+        .bind(
+            snapshot.puuid,
+            snapshot.timestamp,
+            snapshot.soloTotalLp,
+            snapshot.flexTotalLp,
+            snapshot.puuid,
+            snapshot.timestamp - 900 // 15 min
+        )
+        .run();
+}
