@@ -1,5 +1,5 @@
-import {getMatchIdsByPuuid, getRanksByPuuid} from "./riot/riotAPI.js";
-import {getMatches, getTimeline, getAccountByRiotId} from "./riotService.js";
+import {getMatchIdsByPuuid} from "./riot/riotAPI.js";
+import {getMatches, getTimeline, getAccountByRiotId, getRanksByPuuid} from "./riotService.js";
 import {getChampion, ensureChampionsLoaded} from "./championService.js";
 import {ensureItemsLoaded, getItem} from "./itemService";
 import {ensureRunesLoaded, getRune} from "./runeService";
