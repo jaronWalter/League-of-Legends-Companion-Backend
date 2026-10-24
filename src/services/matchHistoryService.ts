@@ -174,6 +174,7 @@ export async function getMatchHistory(matchIds: string[]) {
         matchHistory.push({
             matchId: match.metadata.matchId,
             gameDate: gameDate,
+            gameDateUnix: match.info.gameCreation,
             gameDuration: match.info.gameDuration,
             queueId: match.info.queueId,
             patch: match.info.gameVersion.split(".").slice(0, 2).join("."),

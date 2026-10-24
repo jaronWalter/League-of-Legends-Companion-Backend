@@ -161,3 +161,37 @@ export async function saveRankSnapshot(
         )
         .run();
 }
+
+
+export interface RankHistoryEntry {
+    id: number;
+    puuid: string;
+    timestamp: number;
+    soloTotalLp: number | null;
+    flexTotalLp: number | null;
+}
+
+export async function getRankHistoryByPuuid(
+    puuid: string
+): Promise<RankHistoryEntry[]> {
+    const result = await env.DB.prepare(`
+        SELECT id, puuid, timestamp, solo_total_lp, flex_total_lp
+        FROM rank_history
+        WHERE puuid = ?
+        ORDER BY timestamp ASC
+    `)
+        .bind(puuid)
+        .all();
+
+    return (result.results ?? []).map((row) => ({
+        id: Number(row.id),
+        puuid: String(row.puuid),
+        timestamp: Number(row.timestamp),
+        soloTotalLp: row.solo_total_lp == null
+            ? null
+            : Number(row.solo_total_lp),
+        flexTotalLp: row.flex_total_lp == null
+            ? null
+            : Number(row.flex_total_lp)
+    }));
+}
