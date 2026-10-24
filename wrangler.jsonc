@@ -1,4 +1,6 @@
+
 {
+  "account_id": "a336253a36218e9dca1c46d302c85d8d",
   "name": "lolcompanion-api",
   "main": "src/worker.ts",
   "compatibility_date": "2026-09-10",
@@ -9,7 +11,7 @@
     {
       "binding": "DB",
       "database_name": "lolcompanion-db",
-      "database_id": "075486f2-b314-4989-8595-ffbe43e7d8d6"
+      "database_id": "50de1dff-7b14-4850-bdac-1175e06e2dcb"
     }
   ]
 }
