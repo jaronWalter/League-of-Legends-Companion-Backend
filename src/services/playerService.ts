@@ -532,6 +532,8 @@ async function getLastGameData(id: string) {
                 totalChampionDamage:
                 participant.totalDamageDealtToChampions,
 
+                totalDamageTaken: participant.totalDamageTaken,
+
                 ranks: rankData
             };
         })
@@ -606,6 +608,8 @@ async function getLastGameData(id: string) {
 
             totalChampionDamage:
             player.totalDamageDealtToChampions,
+
+            totalDamageTaken: player.totalDamageTaken,
 
             ranks: playerRankData
         },

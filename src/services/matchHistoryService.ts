@@ -108,6 +108,7 @@ export async function getMatchHistory(matchIds: string[]) {
                 creepScore: participant.neutralMinionsKilled + participant.totalMinionsKilled,
                 visionScore: participant.visionScore,
                 totalChampionDamage: participant.totalDamageDealtToChampions,
+                totalDamageTaken: participant.totalDamageTaken,
                 kda: Math.round(kda * 100) / 100,
                 killParticipationPercent: killParticipation,
                 items: [
